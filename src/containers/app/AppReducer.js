@@ -18,7 +18,7 @@ const INITIAL_STATE :Map<*, *> = fromJS({
   },
 });
 
-export default function appReducer(state :Map<*, *> = INITIAL_STATE, action :Object) {
+export default function reducer(state :Map<*, *> = INITIAL_STATE, action :Object) {
 
   switch (action.type) {
 
