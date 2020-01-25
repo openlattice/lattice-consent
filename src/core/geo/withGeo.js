@@ -13,10 +13,6 @@ import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as GeoActions from './GeoActions';
 
-import Logger from '../../utils/Logger';
-
-const LOG :Logger = new Logger('withGeo');
-
 type GeoLocationHOCProps = {
   actions :{
     getGeoLocation :RequestSequence;
@@ -73,20 +69,15 @@ function withGeoHOC(WrappedComponent :ComponentType<Object>) :ComponentType<Obje
         ...props
       } = this.props;
 
-      if (error && !error.isEmpty()) {
-        LOG.error('encountered an error with geolocation', error.get('message'));
-        return (
-          <>
-            <div>There was an issue with browser geolocation.</div>
-            <div>Please make sure your browser settings allow access to Location.</div>
-          </>
-        );
-      }
+      const geo = {
+        error,
+        geolocation,
+        getGeoLocationRequestState,
+      };
 
-      const isGettingLocation = getGeoLocationRequestState === RequestStates.PENDING;
       /* eslint-disable react/jsx-props-no-spreading */
       return (
-        <WrappedComponent geolocation={geolocation} getGeoLocationRequestState={isGettingLocation} {...props} />
+        <WrappedComponent {...props} geo={geo} />
       );
       /* eslint-enable */
     }

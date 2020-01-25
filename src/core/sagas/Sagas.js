@@ -4,11 +4,13 @@
 
 import { all, fork } from '@redux-saga/core/effects';
 import { AuthSagas } from 'lattice-auth';
+import { DataApiSagas } from 'lattice-sagas';
 
-import * as AppSagas from '../../containers/app/AppSagas';
-import * as EDMSagas from '../edm/EDMSagas';
-import * as GeoSagas from '../geo/GeoSagas';
-import * as RoutingSagas from '../router/RoutingSagas';
+import { AppSagas } from '../../containers/app';
+import { ConsentSagas } from '../../containers/consent';
+import { EDMSagas } from '../edm';
+import { GeoSagas } from '../geo';
+import { RoutingSagas } from '../router';
 
 export default function* sagas() :Generator<*, *, *> {
 
@@ -19,6 +21,9 @@ export default function* sagas() :Generator<*, *, *> {
     fork(AuthSagas.watchAuthFailure),
     fork(AuthSagas.watchAuthExpired),
     fork(AuthSagas.watchLogout),
+
+    // "lattice-sagas" sagas
+    fork(DataApiSagas.getEntityDataWatcher),
 
     // AppSagas
     fork(AppSagas.initializeApplicationWatcher),
@@ -32,5 +37,8 @@ export default function* sagas() :Generator<*, *, *> {
 
     // GeoSagas
     fork(GeoSagas.getGeoLocationWatcher),
+
+    // ConsentSagas
+    fork(ConsentSagas.getConsentFormSchemaWatcher),
   ]);
 }

@@ -30,6 +30,7 @@ const INITIAL_STATE :Map<*, *> = fromJS({
   },
   entityTypes: List(),
   entityTypesIndexMap: Map(),
+  propertyTypeIds: Map(),
   propertyTypes: List(),
   propertyTypesIndexMap: Map(),
 });
@@ -78,6 +79,7 @@ export default function edmReducer(state :Map<*, *> = INITIAL_STATE, action :Obj
           const rawPropertyTypes :PropertyTypeObject[] = seqAction.value.propertyTypes;
           const propertyTypes :List = List().asMutable();
           const propertyTypesIndexMap :Map = Map().asMutable();
+          const propertyTypeIds :Map = Map().asMutable();
 
           rawPropertyTypes.forEach((pt :PropertyTypeObject, index :number) => {
             try {
@@ -97,6 +99,7 @@ export default function edmReducer(state :Map<*, *> = INITIAL_STATE, action :Obj
               propertyTypes.push(propertyType.toImmutable());
               propertyTypesIndexMap.set(propertyType.id, index);
               propertyTypesIndexMap.set(propertyType.type, index);
+              propertyTypeIds.set(propertyType.type, propertyType.id);
             }
             catch (e) {
               LOG.error(seqAction.type, e);
@@ -107,6 +110,7 @@ export default function edmReducer(state :Map<*, *> = INITIAL_STATE, action :Obj
           return state
             .set('entityTypes', entityTypes.asImmutable())
             .set('entityTypesIndexMap', entityTypesIndexMap.asImmutable())
+            .set('propertyTypeIds', propertyTypeIds.asImmutable())
             .set('propertyTypes', propertyTypes.asImmutable())
             .set('propertyTypesIndexMap', propertyTypesIndexMap.asImmutable())
             .setIn([GET_EDM_TYPES, 'requestState'], RequestStates.SUCCESS);
@@ -114,6 +118,7 @@ export default function edmReducer(state :Map<*, *> = INITIAL_STATE, action :Obj
         FAILURE: () => state
           .set('entityTypes', List())
           .set('entityTypesIndexMap', Map())
+          .set('propertyTypeIds', Map())
           .set('propertyTypes', List())
           .set('propertyTypesIndexMap', Map())
           .setIn([GET_EDM_TYPES, 'requestState'], RequestStates.FAILURE),

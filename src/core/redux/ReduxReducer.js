@@ -6,17 +6,19 @@ import { connectRouter } from 'connected-react-router/immutable';
 import { AuthReducer } from 'lattice-auth';
 import { combineReducers } from 'redux-immutable';
 
-import appReducer from '../../containers/app/AppReducer';
-import edmReducer from '../edm/EDMReducer';
-import geoReducer from '../geo/GeoReducer';
+import { AppReducer } from '../../containers/app';
+import { ConsentReducer } from '../../containers/consent';
+import { EDMReducer } from '../edm';
+import { GeoReducer } from '../geo';
 
 export default function reduxReducer(routerHistory :any) {
 
   return combineReducers({
-    app: appReducer,
+    app: AppReducer,
     auth: AuthReducer,
-    edm: edmReducer,
-    geo: geoReducer,
+    consent: ConsentReducer,
+    edm: EDMReducer,
+    geo: GeoReducer,
     router: connectRouter(routerHistory),
   });
 }
