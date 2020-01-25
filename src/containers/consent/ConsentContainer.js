@@ -41,11 +41,12 @@ const {
 } = EntitySetNames.ASSOCIATION_ENTITY_SET_NAMES;
 
 const {
-  CONSENT_FORM_ESN,
-  CONSENT_FORM_CONTENT_ESN,
-  LOCATION_ESN,
   CLIENTS_ESN,
+  CONSENT_FORM_CONTENT_ESN,
+  CONSENT_FORM_ESN,
+  CONSENT_FORM_SCHEMAS_ESN,
   ELECTRONIC_SIGNATURE_ESN,
+  LOCATION_ESN,
   STAFF_ESN,
   WITNESSES_ESN,
 } = EntitySetNames.ENTITY_SET_NAMES;
@@ -78,21 +79,21 @@ type Props = {
   };
   clientEntityKeyId :UUID;
   entitySetIds :{
-    CLIENTS :UUID;
-    CONSENT_FORM_CONTENT :UUID;
-    CONSENT_FORM :UUID;
-    CONSENT_FORM_SCHEMAS :UUID;
-    DECRYPTED_BY :UUID;
-    DIGITAL_SIGNATURE :UUID;
-    ELECTRONIC_SIGNATURE :UUID;
-    INCLUDES :UUID;
-    LOCATED_AT :UUID;
-    LOCATION :UUID;
-    PUBLIC_KEY :UUID;
-    SIGNED_BY :UUID;
-    STAFF :UUID;
-    VERIFIES :UUID;
-    WITNESSES :UUID;
+    CLIENTS_ESN :UUID;
+    CONSENT_FORM_CONTENT_ESN :UUID;
+    CONSENT_FORM_ESN :UUID;
+    CONSENT_FORM_SCHEMAS_ESN :UUID;
+    DECRYPTED_BY_ESN :UUID;
+    DIGITAL_SIGNATURE_ESN :UUID;
+    ELECTRONIC_SIGNATURE_ESN :UUID;
+    INCLUDES_ESN :UUID;
+    LOCATED_AT_ESN :UUID;
+    LOCATION_ESN :UUID;
+    PUBLIC_KEY_ESN :UUID;
+    SIGNED_BY_ESN :UUID;
+    STAFF_ESN :UUID;
+    VERIFIES_ESN :UUID;
+    WITNESSES_ESN :UUID;
   };
   geo :{
     error :Map<*, *>;
@@ -126,11 +127,12 @@ class ConsentContainer extends Component<Props, State> {
 
   componentDidMount() {
 
-    const { actions } = this.props;
+    const { actions, entitySetIds, schemaEntityKeyId } = this.props;
 
-    const schemasEntitySetId = '36377fd2-fa85-4adb-9eea-1b8c56974fe2';
-    const schemaEntityKeyId = '00010000-0000-0000-8000-000000000009';
-    actions.getConsentFormSchema({ schemaEntityKeyId, schemasEntitySetId });
+    actions.getConsentFormSchema({
+      schemaEntityKeyId,
+      schemasEntitySetId: entitySetIds[CONSENT_FORM_SCHEMAS_ESN],
+    });
   }
 
   componentDidUpdate(props :Props) {
