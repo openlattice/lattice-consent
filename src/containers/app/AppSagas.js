@@ -10,16 +10,15 @@ import {
 } from '@redux-saga/core/effects';
 import type { SequenceAction } from 'redux-reqseq';
 
-import Logger from '../../utils/Logger';
 import { INITIALIZE_APPLICATION, initializeApplication } from './AppActions';
-import {
-  getEntityDataModelTypes,
-} from '../../core/edm/EDMActions';
-import {
-  getEntityDataModelTypesWorker,
-} from '../../core/edm/EDMSagas';
+
+import Logger from '../../utils/Logger';
+import { EDMActions, EDMSagas } from '../../core/edm';
 
 const LOG = new Logger('AppSagas');
+
+const { getEntityDataModelTypes } = EDMActions;
+const { getEntityDataModelTypesWorker } = EDMSagas;
 
 /*
  *
