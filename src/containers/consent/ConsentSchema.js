@@ -130,6 +130,7 @@ const dataSchema = {
       required: [
         CONSENT_FORM_DESCRIPTION_EAK,
         CONSENT_FORM_NAME_EAK,
+        CONSENT_FORM_SCHEMA_EAK,
         CONSENT_FORM_TYPE_EAK,
       ],
       title: '',
