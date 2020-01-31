@@ -6,15 +6,11 @@ import { DataProcessingUtils } from 'lattice-fabricate';
 
 import { EntitySetNames, FullyQualifiedNames } from '../../core/edm/constants';
 
-const {
-  getEntityAddressKey,
-  getPageSectionKey,
-} = DataProcessingUtils;
+const { getEntityAddressKey, getPageSectionKey } = DataProcessingUtils;
 
 const {
   ELECTRONIC_SIGNATURE_ESN,
   CONSENT_FORM_ESN,
-  CONSENT_FORM_CONTENT_ESN,
   LOCATION_ESN,
   WITNESSES_ESN,
 } = EntitySetNames.ENTITY_SET_NAMES;
@@ -33,13 +29,66 @@ const {
 } = FullyQualifiedNames.PROPERTY_TYPE_FQNS;
 
 /*
+ * location
+ */
+
+export const LOCATION_PSK = getPageSectionKey(0, 1);
+export const LOCATION_LATITUDE_EAK = getEntityAddressKey(0, LOCATION_ESN, LOCATION_LATITUDE_FQN);
+export const LOCATION_LONGITUDE_EAK = getEntityAddressKey(0, LOCATION_ESN, LOCATION_LONGITUDE_FQN);
+
+/*
+ * consent form (invisible)
+ */
+
+export const CONSENT_FORM_PSK = getPageSectionKey(0, 2);
+export const CONSENT_FORM_DESCRIPTION_EAK = getEntityAddressKey(0, CONSENT_FORM_ESN, OL_DESCRIPTION_FQN);
+export const CONSENT_FORM_NAME_EAK = getEntityAddressKey(0, CONSENT_FORM_ESN, OL_NAME_FQN);
+export const CONSENT_FORM_SCHEMA_EAK = getEntityAddressKey(0, CONSENT_FORM_ESN, OL_SCHEMA_FQN);
+export const CONSENT_FORM_TYPE_EAK = getEntityAddressKey(0, CONSENT_FORM_ESN, OL_TYPE_FQN);
+
+/*
+ * consent form (visible)
+ */
+
+export const CONSENT_FORM_CONTENT_PSK = getPageSectionKey(1, 1);
+export const CONSENT_FORM_CONTENT_EAK = getEntityAddressKey(0, CONSENT_FORM_ESN, OL_TEXT_FQN);
+
+/*
+ * client signature
+ */
+
+export const CLIENT_PSK = getPageSectionKey(1, 2);
+export const CLIENT_SIGNATURE_NAME_EAK = getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN);
+export const CLIENT_SIGNATURE_DATE_EAK = getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN);
+export const CLIENT_SIGNATURE_DATA_EAK = getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN);
+
+/*
+ * staff signature
+ */
+
+export const STAFF_PSK = getPageSectionKey(1, 3);
+export const STAFF_SIGNATURE_NAME_EAK = getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN);
+export const STAFF_SIGNATURE_DATE_EAK = getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN);
+export const STAFF_SIGNATURE_DATA_EAK = getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN);
+
+/*
+ * witness signature
+ */
+
+export const WITNESS_PSK = getPageSectionKey(1, 4);
+export const WITNESS_NAME_EAK = getEntityAddressKey(-1, WITNESSES_ESN, GEN_FULL_NAME_FQN);
+export const WITNESS_SIGNATURE_NAME_EAK = getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN);
+export const WITNESS_SIGNATURE_DATE_EAK = getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN);
+export const WITNESS_SIGNATURE_DATA_EAK = getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN);
+
+/*
  * This is meant to be a starting point for all consent forms. For the time being, we're trying to keep things simple,
  * and as such, all consent forms are meant to follow the same structure:
- *   - page 0:
- *     - section 1: geolocation data (invisible)
- *     - section 2: consent form data (invisible)
- *   - page 1:
- *     - section 1: consent form content data
+ *   - page 0 (invisible):
+ *     - section 1: geolocation data
+ *     - section 2: consent form data
+ *   - page 1 (visible):
+ *     - section 1: consent form data
  *     - section 2: client signature data (required everywhere)
  *     - section 3: staff signature data (only required on some forms)
  *     - section 4: additional witnesses signature data (only required on some forms)
@@ -47,129 +96,128 @@ const {
 
 const dataSchema = {
   properties: {
-    [getPageSectionKey(0, 1)]: {
+    [LOCATION_PSK]: {
       properties: {
-        [getEntityAddressKey(0, LOCATION_ESN, LOCATION_LATITUDE_FQN)]: {
+        [LOCATION_LATITUDE_EAK]: {
           type: 'number',
         },
-        [getEntityAddressKey(0, LOCATION_ESN, LOCATION_LONGITUDE_FQN)]: {
+        [LOCATION_LONGITUDE_EAK]: {
           type: 'number',
         },
       },
       required: [
-        getEntityAddressKey(0, LOCATION_ESN, LOCATION_LATITUDE_FQN),
-        getEntityAddressKey(0, LOCATION_ESN, LOCATION_LONGITUDE_FQN),
+        LOCATION_LATITUDE_EAK,
+        LOCATION_LONGITUDE_EAK,
       ],
       title: '',
       type: 'object',
     },
-    [getPageSectionKey(0, 2)]: {
+    [CONSENT_FORM_PSK]: {
       properties: {
-        [getEntityAddressKey(0, CONSENT_FORM_ESN, OL_DESCRIPTION_FQN)]: {
+        [CONSENT_FORM_DESCRIPTION_EAK]: {
           type: 'string',
         },
-        [getEntityAddressKey(0, CONSENT_FORM_ESN, OL_NAME_FQN)]: {
+        [CONSENT_FORM_NAME_EAK]: {
           type: 'string',
         },
-        [getEntityAddressKey(0, CONSENT_FORM_ESN, OL_SCHEMA_FQN)]: {
+        [CONSENT_FORM_SCHEMA_EAK]: {
           type: 'string',
         },
-        [getEntityAddressKey(0, CONSENT_FORM_ESN, OL_TYPE_FQN)]: {
+        [CONSENT_FORM_TYPE_EAK]: {
           type: 'string',
         },
       },
       required: [
-        getEntityAddressKey(0, CONSENT_FORM_ESN, OL_DESCRIPTION_FQN),
-        getEntityAddressKey(0, CONSENT_FORM_ESN, OL_NAME_FQN),
-        getEntityAddressKey(0, CONSENT_FORM_ESN, OL_SCHEMA_FQN),
-        getEntityAddressKey(0, CONSENT_FORM_ESN, OL_TYPE_FQN),
+        CONSENT_FORM_DESCRIPTION_EAK,
+        CONSENT_FORM_NAME_EAK,
+        CONSENT_FORM_TYPE_EAK,
       ],
       title: '',
       type: 'object',
     },
-    [getPageSectionKey(1, 1)]: {
+    [CONSENT_FORM_CONTENT_PSK]: {
       properties: {
-        [getEntityAddressKey(0, CONSENT_FORM_CONTENT_ESN, OL_TEXT_FQN)]: {
+        [CONSENT_FORM_CONTENT_EAK]: {
           properties: {},
           title: '',
           type: 'object',
         },
       },
       required: [
-        getEntityAddressKey(0, CONSENT_FORM_CONTENT_ESN, OL_TEXT_FQN),
+        CONSENT_FORM_CONTENT_EAK,
       ],
       title: '',
       type: 'object',
     },
-    [getPageSectionKey(1, 2)]: {
+    [CLIENT_PSK]: {
       properties: {
-        [getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN)]: {
+        [CLIENT_SIGNATURE_NAME_EAK]: {
           title: 'Client name',
           type: 'string',
         },
-        [getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN)]: {
+        [CLIENT_SIGNATURE_DATE_EAK]: {
           title: 'Date',
           type: 'string',
         },
-        [getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN)]: {
+        [CLIENT_SIGNATURE_DATA_EAK]: {
           title: 'Client signature',
           type: 'string',
         },
       },
       required: [
-        getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN),
-        getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN),
-        getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN),
+        CLIENT_SIGNATURE_NAME_EAK,
+        CLIENT_SIGNATURE_DATE_EAK,
+        CLIENT_SIGNATURE_DATA_EAK,
       ],
       title: 'Client',
       type: 'object',
     },
-    [getPageSectionKey(1, 3)]: {
+    [STAFF_PSK]: {
       properties: {
-        [getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN)]: {
+        [STAFF_SIGNATURE_NAME_EAK]: {
           title: 'Staff name',
           type: 'string',
         },
-        [getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN)]: {
+        [STAFF_SIGNATURE_DATE_EAK]: {
           title: 'Date',
           type: 'string',
         },
-        [getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN)]: {
+        [STAFF_SIGNATURE_DATA_EAK]: {
           title: 'Staff signature',
           type: 'string',
         },
       },
       required: [
-        getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN),
-        getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN),
-        getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN),
+        STAFF_SIGNATURE_NAME_EAK,
+        STAFF_SIGNATURE_DATE_EAK,
+        STAFF_SIGNATURE_DATA_EAK,
       ],
       title: 'Staff',
       type: 'object',
     },
-    [getPageSectionKey(1, 4)]: {
+    [WITNESS_PSK]: {
       items: {
         properties: {
-          [getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN)]: {
+          [WITNESS_SIGNATURE_NAME_EAK]: {
             title: 'Witness name',
             type: 'string',
           },
-          [getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN)]: {
+          [WITNESS_SIGNATURE_DATE_EAK]: {
             title: 'Date',
             type: 'string',
           },
-          [getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN)]: {
+          [WITNESS_SIGNATURE_DATA_EAK]: {
             title: 'Witness signature',
             type: 'string',
           },
-          [getEntityAddressKey(-1, WITNESSES_ESN, GEN_FULL_NAME_FQN)]: {
+          [WITNESS_NAME_EAK]: {
             type: 'string',
           },
         },
         required: [
-          getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN),
-          getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN),
-          getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN),
+          WITNESS_SIGNATURE_NAME_EAK,
+          WITNESS_SIGNATURE_DATE_EAK,
+          WITNESS_SIGNATURE_DATA_EAK,
         ],
         title: '',
         type: 'object',
@@ -183,62 +231,65 @@ const dataSchema = {
 };
 
 const uiSchema = {
-  [getPageSectionKey(0, 1)]: {
+  [LOCATION_PSK]: {
     classNames: 'hidden',
   },
-  [getPageSectionKey(0, 2)]: {
+  [CONSENT_FORM_PSK]: {
     classNames: 'hidden',
   },
-  [getPageSectionKey(1, 1)]: {
+  [CONSENT_FORM_CONTENT_PSK]: {
     classNames: 'column-span-12',
-    [getEntityAddressKey(0, CONSENT_FORM_CONTENT_ESN, OL_TEXT_FQN)]: {
+    [CONSENT_FORM_CONTENT_EAK]: {
       classNames: 'column-span-12',
     },
   },
-  [getPageSectionKey(1, 2)]: {
+  [CLIENT_PSK]: {
     classNames: 'column-span-12 grid-container',
-    [getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN)]: {
+    [CLIENT_SIGNATURE_NAME_EAK]: {
       classNames: 'column-span-6',
     },
-    [getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN)]: {
+    [CLIENT_SIGNATURE_DATE_EAK]: {
       classNames: 'column-span-6',
+      'ui:disabled': true,
       'ui:widget': 'DateWidget',
     },
-    [getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN)]: {
+    [CLIENT_SIGNATURE_DATA_EAK]: {
       classNames: 'column-span-12',
       'ui:widget': 'SignatureWidget',
     },
   },
-  [getPageSectionKey(1, 3)]: {
+  [STAFF_PSK]: {
     classNames: 'column-span-12 grid-container',
-    [getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN)]: {
+    [STAFF_SIGNATURE_NAME_EAK]: {
       classNames: 'column-span-6',
     },
-    [getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN)]: {
+    [STAFF_SIGNATURE_DATE_EAK]: {
       classNames: 'column-span-6',
+      'ui:disabled': true,
       'ui:widget': 'DateWidget',
     },
-    [getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN)]: {
+    [STAFF_SIGNATURE_DATA_EAK]: {
       classNames: 'column-span-12',
       'ui:widget': 'SignatureWidget',
     },
   },
-  [getPageSectionKey(1, 4)]: {
+  [WITNESS_PSK]: {
     classNames: 'column-span-12',
     items: {
       classNames: 'column-span-12 grid-container',
-      [getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN)]: {
+      [WITNESS_SIGNATURE_NAME_EAK]: {
         classNames: 'column-span-6',
       },
-      [getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN)]: {
+      [WITNESS_SIGNATURE_DATE_EAK]: {
         classNames: 'column-span-6',
+        'ui:disabled': true,
         'ui:widget': 'DateWidget',
       },
-      [getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN)]: {
+      [WITNESS_SIGNATURE_DATA_EAK]: {
         classNames: 'column-span-12',
         'ui:widget': 'SignatureWidget',
       },
-      [getEntityAddressKey(-1, WITNESSES_ESN, GEN_FULL_NAME_FQN)]: {
+      [WITNESS_NAME_EAK]: {
         classNames: 'hidden',
       },
     },

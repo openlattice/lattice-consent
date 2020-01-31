@@ -13,14 +13,20 @@ import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as GeoActions from './GeoActions';
 
+const { GET_GEO_LOCATION } = GeoActions;
+
 type GeoLocationHOCProps = {
   actions :{
     getGeoLocation :RequestSequence;
     resetGeoState :() => void;
   };
-  error :Map<*, *>;
-  geolocation :?Position;
-  getGeoLocationRequestState :RequestState;
+  geo :{
+    error :Map;
+    geolocation :?Position;
+    requestStates :{
+      GET_GEO_LOCATION :RequestState;
+    };
+  };
 };
 
 // TODO: figure out correct Flow typing for HOCs - https://flow.org/en/docs/react/hoc
@@ -46,14 +52,10 @@ function withGeoHOC(WrappedComponent :ComponentType<Object>) :ComponentType<Obje
 
     checkGeoLocation = () => {
 
-      const {
-        actions,
-        error,
-        geolocation,
-        getGeoLocationRequestState,
-      } = this.props;
+      const { actions, geo } = this.props;
+      const { error, geolocation, requestStates } = geo;
 
-      const isGettingLocation = getGeoLocationRequestState === RequestStates.PENDING;
+      const isGettingLocation = requestStates[GET_GEO_LOCATION] === RequestStates.PENDING;
       // to avoid an infinite loop, we can only call getGeoLocation() when there's no error
       if ((!error || error.isEmpty()) && !geolocation && !isGettingLocation) {
         actions.getGeoLocation();
@@ -62,22 +64,9 @@ function withGeoHOC(WrappedComponent :ComponentType<Object>) :ComponentType<Obje
 
     render() {
 
-      const {
-        error,
-        geolocation,
-        getGeoLocationRequestState,
-        ...props
-      } = this.props;
-
-      const geo = {
-        error,
-        geolocation,
-        getGeoLocationRequestState,
-      };
-
       /* eslint-disable react/jsx-props-no-spreading */
       return (
-        <WrappedComponent {...props} geo={geo} />
+        <WrappedComponent {...this.props} />
       );
       /* eslint-enable */
     }
@@ -86,7 +75,9 @@ function withGeoHOC(WrappedComponent :ComponentType<Object>) :ComponentType<Obje
   const mapStateToProps = (state) => ({
     error: state.getIn(['geo', GeoActions.GET_GEO_LOCATION, 'error']),
     geolocation: state.getIn(['geo', 'geolocation']),
-    getGeoLocationRequestState: state.getIn(['geo', GeoActions.GET_GEO_LOCATION, 'requestState']),
+    requestStates: {
+      [GET_GEO_LOCATION]: state.getIn(['geo', GeoActions.GET_GEO_LOCATION, 'requestState']),
+    },
   });
 
   const mapActionsToProps = (dispatch) => ({
@@ -96,16 +87,17 @@ function withGeoHOC(WrappedComponent :ComponentType<Object>) :ComponentType<Obje
     }, dispatch)
   });
 
-  const mergeProps = (stateProps, dispatchProps, wrappedComponentProps) => {
+  const mergeProps = (stateProps, actionProps, wrappedProps) => {
 
-    const { actions: wrappedComponentActions, ...wrappedComponentOtherProps } = wrappedComponentProps;
-    const { actions: { getGeoLocation, resetGeoState } } = dispatchProps;
-    const actions = { getGeoLocation, resetGeoState, ...wrappedComponentActions };
+    const { actions: wrappedActions, requestStates: wrappedRequestStates, ...wrappedOtherProps } = wrappedProps;
+    const { actions: { getGeoLocation, resetGeoState } } = actionProps;
+    const actions = { getGeoLocation, resetGeoState, ...wrappedActions };
 
     return {
       actions,
-      ...wrappedComponentOtherProps,
-      ...stateProps,
+      geo: { ...stateProps },
+      requestStates: { ...wrappedRequestStates },
+      ...wrappedOtherProps
     };
   };
 
