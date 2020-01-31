@@ -29,7 +29,7 @@ import { EntitySetNames } from '../../core/edm/constants';
 import { GeoActions, GeoErrors, withGeo } from '../../core/geo';
 import { RoutingActions } from '../../core/router';
 
-const { GET_CONSENT_FORM_SCHEMA } = ConsentActions;
+const { GET_CONSENT_FORM_SCHEMA, SUBMIT_CONSENT } = ConsentActions;
 const { GET_GEO_LOCATION } = GeoActions;
 const { CONSENT_FORM_SCHEMAS_ESN } = EntitySetNames.ENTITY_SET_NAMES;
 
@@ -52,6 +52,7 @@ type Props = {
   };
   requestStates :{
     GET_CONSENT_FORM_SCHEMA :RequestState;
+    SUBMIT_CONSENT :RequestState;
   };
   schema :Object;
   schemaEntityKeyId :UUID;
@@ -189,6 +190,7 @@ class ConsentContainer extends Component<Props, State> {
         <Card>
           <Form
               formData={data.toJS()}
+              isSubmitting={requestStates[SUBMIT_CONSENT] === RequestStates.PENDING}
               onChange={this.onChange}
               onSubmit={this.onSubmit}
               schema={getIn(schema, ['dataSchema', 0])}
@@ -208,6 +210,7 @@ class ConsentContainer extends Component<Props, State> {
 const mapStateToProps = (state) => ({
   requestStates: {
     [GET_CONSENT_FORM_SCHEMA]: state.getIn(['consent', GET_CONSENT_FORM_SCHEMA, 'requestState']),
+    [SUBMIT_CONSENT]: state.getIn(['consent', SUBMIT_CONSENT, 'requestState']),
   },
   schema: state.getIn(['consent', 'schema']),
   schemaEntityKeyId: state.getIn(['consent', 'schemaEntityKeyId']),

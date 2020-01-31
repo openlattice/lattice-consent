@@ -11,8 +11,10 @@ import {
   CLEAR_CONSENT_DATA,
   CONSENT_INITIALIZER,
   GET_CONSENT_FORM_SCHEMA,
+  SUBMIT_CONSENT,
   consentInitializer,
   getConsentFormSchema,
+  submitConsent,
 } from './ConsentActions';
 
 const INITIAL_STATE :Map<*, *> = fromJS({
@@ -78,6 +80,15 @@ export default function reducer(state :Map<*, *> = INITIAL_STATE, action :Object
           .set('schema', Map())
           .setIn([GET_CONSENT_FORM_SCHEMA, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([GET_CONSENT_FORM_SCHEMA, seqAction.id]),
+      });
+    }
+
+    case submitConsent.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return submitConsent.reducer(state, seqAction, {
+        REQUEST: () => state.setIn([SUBMIT_CONSENT, 'requestState'], RequestStates.PENDING),
+        SUCCESS: () => state.setIn([SUBMIT_CONSENT, 'requestState'], RequestStates.SUCCESS),
+        FAILURE: () => state.setIn([SUBMIT_CONSENT, 'requestState'], RequestStates.FAILURE),
       });
     }
 
