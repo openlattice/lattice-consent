@@ -33,6 +33,7 @@ import {
   CLIENT_SIGNATURE_DATA_EAK,
   CLIENT_SIGNATURE_DATE_EAK,
   CONSENT_FORM_CONTENT_EAK,
+  CONSENT_FORM_CONTENT_PSK,
   STAFF_SIGNATURE_DATA_EAK,
   STAFF_SIGNATURE_DATE_EAK,
   WITNESS_NAME_EAK,
@@ -252,8 +253,8 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
       for (let witnessIndex = 0; witnessIndex < additionalWitnesses; witnessIndex += 1) {
         // NOTE: the client signature gets index 0 and the staff signature gets index 1, so the witness signatures
         // have to start at index 2
-        const witnessSignatureIndex :number = witnessIndex + 2;
-        associations.push([INCLUDES_ESN, 0, CONSENT_FORM_ESN, witnessSignatureIndex, ELECTRONIC_SIGNATURE_ESN, {
+        const signatureIndex :number = witnessIndex + 2;
+        associations.push([INCLUDES_ESN, 0, CONSENT_FORM_ESN, signatureIndex, ELECTRONIC_SIGNATURE_ESN, {
           [OL_DATE_TIME_FQN]: [nowAsISO],
         }]);
       }
@@ -280,8 +281,8 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
       for (let witnessIndex = 0; witnessIndex < additionalWitnesses; witnessIndex += 1) {
         // NOTE: the client signature gets index 0 and the staff signature gets index 1, so the witness signatures
         // have to start at index 2
-        const witnessSignatureIndex :number = witnessIndex + 2;
-        associations.push([LOCATED_AT_ESN, witnessSignatureIndex, ELECTRONIC_SIGNATURE_ESN, 0, LOCATION_ESN, {
+        const signatureIndex :number = witnessIndex + 2;
+        associations.push([LOCATED_AT_ESN, signatureIndex, ELECTRONIC_SIGNATURE_ESN, 0, LOCATION_ESN, {
           [OL_DATE_TIME_FQN]: [nowAsISO],
         }]);
       }
@@ -340,8 +341,8 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
       for (let witnessIndex = 0; witnessIndex < additionalWitnesses; witnessIndex += 1) {
         // NOTE: the client signature gets index 0 and the staff signature gets index 1, so the witness signatures
         // have to start at index 2
-        const witnessSignatureIndex :number = witnessIndex + 2;
-        associations.push([SIGNED_BY_ESN, witnessSignatureIndex, ELECTRONIC_SIGNATURE_ESN, witnessIndex, WITNESSES_ESN, {
+        const signatureIndex :number = witnessIndex + 2;
+        associations.push([SIGNED_BY_ESN, signatureIndex, ELECTRONIC_SIGNATURE_ESN, witnessIndex, WITNESSES_ESN, {
           [OL_DATE_TIME_FQN]: [nowAsISO],
           [OL_ROLE_FQN]: [SigningRoles.WITNESS],
         }]);
@@ -392,6 +393,58 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
       });
       mappers.set(VALUE_MAPPERS, valueMappers);
     });
+
+    /*
+     * !!! IMPORTANT !!!
+     * we are going to substitute the value for "form content", i.e.
+     *   [CONSENT_FORM_CONTENT_PSK, CONSENT_FORM_CONTENT_EAK]
+     *   [page1section1, 0__@@__CONSENT_FORM_ESN__@@__ol.text]
+     *
+     * what we refer to as "form content" is simply just the stuff before the signature sections. prior to invoking
+     * "processEntityData", we are going to replace the value for "form content" with the entirety of the "form data",
+     * which includes "all the stuff". most importantly, it includes the entire RJSF internal data structure, i.e.
+     *
+     *   "page0section1": {
+     *     "0__@@__LOCATION_ESN__@@__location.latitude": 0,
+     *     "0__@@__LOCATION_ESN__@@__location.longitude": 0,
+     *   },
+     *   "page0section2": {
+     *     "0__@@__CONSENT_FORM_ESN__@@__ol.description": "",
+     *     "0__@@__CONSENT_FORM_ESN__@@__ol.name": "",
+     *     "0__@@__CONSENT_FORM_ESN__@@__ol.type": "CONSENT",
+     *     "0__@@__CONSENT_FORM_ESN__@@__ol.schema": "{ \"dataSchema\" { ... }, \"uiSchema\": { ... } }",
+     *   },
+     *   "page1section1": {
+     *     "0__@@__CONSENT_FORM_ESN__@@__ol.text": {
+     *       0: "",
+     *       1: "",
+     *       2: "",
+     *       ...
+     *     },
+     *   },
+     *   "page1section2": {
+     *     "0__@@__ELECTRONIC_SIGNATURE_ESN__@@__ol.datetime": "",
+     *     "0__@@__ELECTRONIC_SIGNATURE_ESN__@@__ol.name": "",
+     *     "0__@@__ELECTRONIC_SIGNATURE_ESN__@@__ol.signaturedata": "",
+     *   },
+     *   "page1section3": {
+     *     "1__@@__ELECTRONIC_SIGNATURE_ESN__@@__ol.datetime": "",
+     *     "1__@@__ELECTRONIC_SIGNATURE_ESN__@@__ol.signaturedata": "",
+     *     "1__@@__ELECTRONIC_SIGNATURE_ESN__@@__ol.name": "",
+     *   },
+     *   "page1section4": [ ... ],
+     *
+     * doing this lets us preserve the exact state and structure of the form at the time of submission. further, this
+     * makes it easy for us to "re-render" what was submitted because we have all of the information we need on the
+     * form entity: "ol.schema" holds the RJSF data schema and ui schema, and "ol.text" holds the entire "form data"
+     * object to pass to RJSF. finally, this also means we don't have to make extra requests to crawl the edm graph
+     * to gather and reconstruct the form data.
+     */
+
+    data = data.setIn(
+      [CONSENT_FORM_CONTENT_PSK, CONSENT_FORM_CONTENT_EAK],
+      data.toJS(),
+    );
 
     const entityData = processEntityData(data, entitySetIds, propertyTypeIds, entityMappers);
 
