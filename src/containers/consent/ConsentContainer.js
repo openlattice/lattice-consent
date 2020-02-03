@@ -107,7 +107,7 @@ class ConsentContainer extends Component<Props, State> {
 
     const countBefore :number = countAdditionalWitnesses(data);
     const countAfter :number = countAdditionalWitnesses(newData);
-    // only pre-fill date if we're adding a witness and we're at the last index
+    // only pre-fill date if we're adding a witness
     if (countAfter > 0 && countAfter > countBefore) {
       newData = newData.setIn(
         [WITNESS_PSK, countAfter - 1, WITNESS_SIGNATURE_DATE_EAK],
