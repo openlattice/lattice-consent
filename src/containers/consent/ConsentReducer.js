@@ -77,7 +77,7 @@ export default function reducer(state :Map<*, *> = INITIAL_STATE, action :Object
           return state;
         },
         FAILURE: () => state
-          .set('schema', Map())
+          .set('schema', undefined)
           .setIn([GET_CONSENT_FORM_SCHEMA, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([GET_CONSENT_FORM_SCHEMA, seqAction.id]),
       });
