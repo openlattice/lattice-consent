@@ -39,6 +39,8 @@ export default function* sagas() :Generator<*, *, *> {
     fork(GeoSagas.getGeoLocationWatcher),
 
     // ConsentSagas
+    fork(ConsentSagas.consentInitializerWatcher),
     fork(ConsentSagas.getConsentFormSchemaWatcher),
+    fork(ConsentSagas.submitConsentWatcher),
   ]);
 }
