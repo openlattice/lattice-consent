@@ -10,37 +10,37 @@ import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
 import trim from 'lodash/trim';
 
-function isDefined(value :any) :boolean {
+function isDefined(value :any) :boolean %checks {
 
   return !isNull(value) && !isUndefined(value);
 }
 
-function isEmptyArray(value :any) :boolean {
+function isEmptyArray(value :any) :boolean %checks {
 
   return isArray(value) && isEmpty(value);
 }
 
-function isEmptyObject(value :any) :boolean {
+function isEmptyObject(value :any) :boolean %checks {
 
   return isPlainObject(value) && isEmpty(value);
 }
 
-function isEmptyString(value :any) :boolean {
+function isEmptyString(value :any) :boolean %checks {
 
   return isString(value) && isEmpty(value);
 }
 
-function isNonEmptyArray(value :any) :boolean {
+function isNonEmptyArray(value :any) :boolean %checks {
 
   return isArray(value) && !isEmpty(value);
 }
 
-function isNonEmptyObject(value :any) :boolean {
+function isNonEmptyObject(value :any) :boolean %checks {
 
   return isPlainObject(value) && !isEmpty(value);
 }
 
-function isNonEmptyString(value :any) :boolean {
+function isNonEmptyString(value :any) :boolean %checks {
 
   return isString(value) && !isEmpty(trim(value));
 }
