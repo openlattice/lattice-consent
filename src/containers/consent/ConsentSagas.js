@@ -67,7 +67,7 @@ const { submitDataGraphWorker } = DataSagas;
 const { getEntityData } = DataApiActions;
 const { getEntityDataWorker } = DataApiSagas;
 
-const { isDefined, isNonEmptyString } = LangUtils;
+const { isDefined } = LangUtils;
 const { isValidUUID } = ValidationUtils;
 const {
   INDEX_MAPPERS,
