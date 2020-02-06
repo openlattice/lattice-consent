@@ -10,16 +10,18 @@ import {
 } from '@redux-saga/core/effects';
 import type { SequenceAction } from 'redux-reqseq';
 
-import Logger from '../../utils/Logger';
 import { INITIALIZE_APPLICATION, initializeApplication } from './AppActions';
-import {
-  getEntityDataModelTypes,
-} from '../../core/edm/EDMActions';
-import {
-  getEntityDataModelTypesWorker,
-} from '../../core/edm/EDMSagas';
+
+import Logger from '../../utils/Logger';
+import { EDMActions, EDMSagas } from '../../core/edm';
+import { ConsentActions, ConsentSagas } from '../consent';
 
 const LOG = new Logger('AppSagas');
+
+const { getEntityDataModelTypes } = EDMActions;
+const { getEntityDataModelTypesWorker } = EDMSagas;
+const { consentInitializer } = ConsentActions;
+const { consentInitializerWorker } = ConsentSagas;
 
 /*
  *
@@ -33,9 +35,11 @@ function* initializeApplicationWorker(action :SequenceAction) :Generator<*, *, *
     yield put(initializeApplication.request(action.id));
     const responses :Object[] = yield all([
       call(getEntityDataModelTypesWorker, getEntityDataModelTypes()),
+      call(consentInitializerWorker, consentInitializer()),
       // ...any other required requests
     ]);
     if (responses[0].error) throw responses[0].error;
+    if (responses[1].error) throw responses[1].error;
     yield put(initializeApplication.success(action.id));
   }
   catch (error) {

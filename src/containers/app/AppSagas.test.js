@@ -9,17 +9,16 @@ import {
   initializeApplicationWatcher,
   initializeApplicationWorker,
 } from './AppSagas';
-import {
-  GET_EDM_TYPES,
-} from '../../core/edm/EDMActions';
-import {
-  getEntityDataModelTypesWorker,
-} from '../../core/edm/EDMSagas';
+
+import { EDMActions, EDMSagas } from '../../core/edm';
 import {
   GENERATOR_TAG,
   testShouldBeGeneratorFunction,
   testWatcherSagaShouldTakeEvery,
 } from '../../utils/testing/TestUtils';
+
+const { GET_EDM_TYPES } = EDMActions;
+const { getEntityDataModelTypesWorker } = EDMSagas;
 
 describe('AppSagas', () => {
 
