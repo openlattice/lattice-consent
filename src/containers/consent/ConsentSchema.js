@@ -9,8 +9,8 @@ import { EntitySetNames, FullyQualifiedNames } from '../../core/edm/constants';
 const { getEntityAddressKey, getPageSectionKey } = DataProcessingUtils;
 
 const {
-  ELECTRONIC_SIGNATURE_ESN,
-  CONSENT_FORM_ESN,
+  ELECTRONIC_SIGNATURES_ESN,
+  CONSENT_FORMS_ESN,
   LOCATION_ESN,
   WITNESSES_ESN,
 } = EntitySetNames.ENTITY_SET_NAMES;
@@ -41,35 +41,35 @@ export const LOCATION_LONGITUDE_EAK = getEntityAddressKey(0, LOCATION_ESN, LOCAT
  */
 
 export const CONSENT_FORM_PSK = getPageSectionKey(0, 2);
-export const CONSENT_FORM_DESCRIPTION_EAK = getEntityAddressKey(0, CONSENT_FORM_ESN, OL_DESCRIPTION_FQN);
-export const CONSENT_FORM_NAME_EAK = getEntityAddressKey(0, CONSENT_FORM_ESN, OL_NAME_FQN);
-export const CONSENT_FORM_SCHEMA_EAK = getEntityAddressKey(0, CONSENT_FORM_ESN, OL_SCHEMA_FQN);
-export const CONSENT_FORM_TYPE_EAK = getEntityAddressKey(0, CONSENT_FORM_ESN, OL_TYPE_FQN);
+export const CONSENT_FORM_DESCRIPTION_EAK = getEntityAddressKey(0, CONSENT_FORMS_ESN, OL_DESCRIPTION_FQN);
+export const CONSENT_FORM_NAME_EAK = getEntityAddressKey(0, CONSENT_FORMS_ESN, OL_NAME_FQN);
+export const CONSENT_FORM_SCHEMA_EAK = getEntityAddressKey(0, CONSENT_FORMS_ESN, OL_SCHEMA_FQN);
+export const CONSENT_FORM_TYPE_EAK = getEntityAddressKey(0, CONSENT_FORMS_ESN, OL_TYPE_FQN);
 
 /*
  * consent form (visible)
  */
 
 export const CONSENT_FORM_CONTENT_PSK = getPageSectionKey(1, 1);
-export const CONSENT_FORM_CONTENT_EAK = getEntityAddressKey(0, CONSENT_FORM_ESN, OL_TEXT_FQN);
+export const CONSENT_FORM_CONTENT_EAK = getEntityAddressKey(0, CONSENT_FORMS_ESN, OL_TEXT_FQN);
 
 /*
  * client signature
  */
 
 export const CLIENT_PSK = getPageSectionKey(1, 2);
-export const CLIENT_SIGNATURE_NAME_EAK = getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN);
-export const CLIENT_SIGNATURE_DATE_EAK = getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN);
-export const CLIENT_SIGNATURE_DATA_EAK = getEntityAddressKey(0, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN);
+export const CLIENT_SIGNATURE_NAME_EAK = getEntityAddressKey(0, ELECTRONIC_SIGNATURES_ESN, OL_NAME_FQN);
+export const CLIENT_SIGNATURE_DATE_EAK = getEntityAddressKey(0, ELECTRONIC_SIGNATURES_ESN, OL_DATE_TIME_FQN);
+export const CLIENT_SIGNATURE_DATA_EAK = getEntityAddressKey(0, ELECTRONIC_SIGNATURES_ESN, OL_SIGNATURE_DATA_FQN);
 
 /*
  * staff signature
  */
 
 export const STAFF_PSK = getPageSectionKey(1, 3);
-export const STAFF_SIGNATURE_NAME_EAK = getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN);
-export const STAFF_SIGNATURE_DATE_EAK = getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN);
-export const STAFF_SIGNATURE_DATA_EAK = getEntityAddressKey(1, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN);
+export const STAFF_SIGNATURE_NAME_EAK = getEntityAddressKey(1, ELECTRONIC_SIGNATURES_ESN, OL_NAME_FQN);
+export const STAFF_SIGNATURE_DATE_EAK = getEntityAddressKey(1, ELECTRONIC_SIGNATURES_ESN, OL_DATE_TIME_FQN);
+export const STAFF_SIGNATURE_DATA_EAK = getEntityAddressKey(1, ELECTRONIC_SIGNATURES_ESN, OL_SIGNATURE_DATA_FQN);
 
 /*
  * witness signature
@@ -77,9 +77,9 @@ export const STAFF_SIGNATURE_DATA_EAK = getEntityAddressKey(1, ELECTRONIC_SIGNAT
 
 export const WITNESS_PSK = getPageSectionKey(1, 4);
 export const WITNESS_NAME_EAK = getEntityAddressKey(-1, WITNESSES_ESN, GEN_FULL_NAME_FQN);
-export const WITNESS_SIGNATURE_NAME_EAK = getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_NAME_FQN);
-export const WITNESS_SIGNATURE_DATE_EAK = getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_DATE_TIME_FQN);
-export const WITNESS_SIGNATURE_DATA_EAK = getEntityAddressKey(-1, ELECTRONIC_SIGNATURE_ESN, OL_SIGNATURE_DATA_FQN);
+export const WITNESS_SIGNATURE_NAME_EAK = getEntityAddressKey(-1, ELECTRONIC_SIGNATURES_ESN, OL_NAME_FQN);
+export const WITNESS_SIGNATURE_DATE_EAK = getEntityAddressKey(-1, ELECTRONIC_SIGNATURES_ESN, OL_DATE_TIME_FQN);
+export const WITNESS_SIGNATURE_DATA_EAK = getEntityAddressKey(-1, ELECTRONIC_SIGNATURES_ESN, OL_SIGNATURE_DATA_FQN);
 
 /*
  * This is meant to be a starting point for all consent forms. For the time being, we're trying to keep things simple,

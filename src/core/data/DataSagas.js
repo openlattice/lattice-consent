@@ -36,7 +36,7 @@ const { createEntityAndAssociationDataWorker, updateEntityDataWorker } = DataApi
 
 function* submitDataGraphWorker(action :SequenceAction) :Generator<*, *, *> {
 
-  const sagaResponse :Object = {};
+  const workerResponse :Object = {};
 
   try {
     yield put(submitDataGraph.request(action.id, action.value));
@@ -48,10 +48,11 @@ function* submitDataGraphWorker(action :SequenceAction) :Generator<*, *, *> {
 
     const response = yield call(createEntityAndAssociationDataWorker, createEntityAndAssociationData(dataGraph));
     if (response.error) throw response.error;
+    workerResponse.data = response.data;
     yield put(submitDataGraph.success(action.id, response.data));
   }
   catch (error) {
-    sagaResponse.error = error;
+    workerResponse.error = error;
     LOG.error(action.type, error);
     yield put(submitDataGraph.failure(action.id, error));
   }
@@ -59,7 +60,7 @@ function* submitDataGraphWorker(action :SequenceAction) :Generator<*, *, *> {
     yield put(submitDataGraph.finally(action.id));
   }
 
-  return sagaResponse;
+  return workerResponse;
 }
 
 function* submitDataGraphWatcher() :Generator<*, *, *> {
@@ -75,7 +76,7 @@ function* submitDataGraphWatcher() :Generator<*, *, *> {
 
 function* submitPartialReplaceWorker(action :SequenceAction) :Generator<*, *, *> {
 
-  const sagaResponse :Object = {};
+  const workerResponse :Object = {};
 
   try {
     yield put(submitPartialReplace.request(action.id, action.value));
@@ -111,7 +112,7 @@ function* submitPartialReplaceWorker(action :SequenceAction) :Generator<*, *, *>
     yield put(submitPartialReplace.success(action.id));
   }
   catch (error) {
-    sagaResponse.error = error;
+    workerResponse.error = error;
     LOG.error(action.type, error);
     yield put(submitPartialReplace.failure(action.id, error));
   }
@@ -119,7 +120,7 @@ function* submitPartialReplaceWorker(action :SequenceAction) :Generator<*, *, *>
     yield put(submitPartialReplace.finally(action.id));
   }
 
-  return sagaResponse;
+  return workerResponse;
 }
 
 function* submitPartialReplaceWatcher() :Generator<*, *, *> {

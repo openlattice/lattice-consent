@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { call, put, takeEvery } from '@redux-saga/core/effects';
+import { call, put, takeLeading } from '@redux-saga/core/effects';
 import type { SequenceAction } from 'redux-reqseq';
 
 import GeoErrors from './GeoErrors';
@@ -41,7 +41,7 @@ function* getGeoLocationWorker(action :SequenceAction) :Generator<*, *, *> {
 
 function* getGeoLocationWatcher() :Generator<*, *, *> {
 
-  yield takeEvery(GET_GEO_LOCATION, getGeoLocationWorker);
+  yield takeLeading(GET_GEO_LOCATION, getGeoLocationWorker);
 }
 
 export {
