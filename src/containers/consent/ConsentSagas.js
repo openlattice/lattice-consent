@@ -262,13 +262,13 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
 
     // form -> includes -> signature (client)
     associations.push([INCLUDES_ESN, 0, CONSENT_FORMS_ESN, 0, ELECTRONIC_SIGNATURES_ESN, {
-      [OL_DATE_TIME_FQN]: [nowAsISO],
+      [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
     }]);
 
     // form -> includes -> signature (staff)
     if (staffSignatureRequired) {
       associations.push([INCLUDES_ESN, 0, CONSENT_FORMS_ESN, 1, ELECTRONIC_SIGNATURES_ESN, {
-        [OL_DATE_TIME_FQN]: [nowAsISO],
+        [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
       }]);
     }
 
@@ -279,7 +279,7 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
         // have to start at index 2
         const signatureIndex :number = witnessIndex + 2;
         associations.push([INCLUDES_ESN, 0, CONSENT_FORMS_ESN, signatureIndex, ELECTRONIC_SIGNATURES_ESN, {
-          [OL_DATE_TIME_FQN]: [nowAsISO],
+          [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
         }]);
       }
     }
@@ -290,13 +290,13 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
 
     // signature (client) -> located at -> location
     associations.push([LOCATED_AT_ESN, 0, ELECTRONIC_SIGNATURES_ESN, 0, LOCATION_ESN, {
-      [OL_DATE_TIME_FQN]: [nowAsISO],
+      [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
     }]);
 
     // signature (staff) -> located at -> location
     if (staffSignatureRequired) {
       associations.push([LOCATED_AT_ESN, 1, ELECTRONIC_SIGNATURES_ESN, 0, LOCATION_ESN, {
-        [OL_DATE_TIME_FQN]: [nowAsISO],
+        [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
       }]);
     }
 
@@ -307,7 +307,7 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
         // have to start at index 2
         const signatureIndex :number = witnessIndex + 2;
         associations.push([LOCATED_AT_ESN, signatureIndex, ELECTRONIC_SIGNATURES_ESN, 0, LOCATION_ESN, {
-          [OL_DATE_TIME_FQN]: [nowAsISO],
+          [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
         }]);
       }
     }
@@ -318,15 +318,15 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
 
     // form -> signed by -> person (client)
     associations.push([SIGNED_BY_ESN, 0, CONSENT_FORMS_ESN, clientEntityKeyId, CLIENTS_ESN, {
-      [OL_DATE_TIME_FQN]: [nowAsISO],
-      [OL_ROLE_FQN]: [SigningRoles.CLIENT],
+      [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
+      [OL_ROLE_FQN.toString()]: [SigningRoles.CLIENT],
     }]);
 
     // form -> signed by -> person (staff)
     if (staffSignatureRequired) {
       associations.push([SIGNED_BY_ESN, 0, CONSENT_FORMS_ESN, staffEntityKeyId, STAFF_ESN, {
-        [OL_DATE_TIME_FQN]: [nowAsISO],
-        [OL_ROLE_FQN]: [SigningRoles.STAFF],
+        [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
+        [OL_ROLE_FQN.toString()]: [SigningRoles.STAFF],
       }]);
     }
 
@@ -336,8 +336,8 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
         // NOTE: the client signature gets index 0 and the staff signature gets index 1, so the witness signatures
         // have to start at index 2
         associations.push([SIGNED_BY_ESN, 0, CONSENT_FORMS_ESN, witnessIndex, WITNESSES_ESN, {
-          [OL_DATE_TIME_FQN]: [nowAsISO],
-          [OL_ROLE_FQN]: [SigningRoles.WITNESS],
+          [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
+          [OL_ROLE_FQN.toString()]: [SigningRoles.WITNESS],
         }]);
       }
     }
@@ -348,15 +348,15 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
 
     // signature -> signed by -> person (client)
     associations.push([SIGNED_BY_ESN, 0, ELECTRONIC_SIGNATURES_ESN, clientEntityKeyId, CLIENTS_ESN, {
-      [OL_DATE_TIME_FQN]: [nowAsISO],
-      [OL_ROLE_FQN]: [SigningRoles.CLIENT],
+      [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
+      [OL_ROLE_FQN.toString()]: [SigningRoles.CLIENT],
     }]);
 
     // signature -> signed by -> person (staff)
     if (staffSignatureRequired) {
       associations.push([SIGNED_BY_ESN, 1, ELECTRONIC_SIGNATURES_ESN, staffEntityKeyId, STAFF_ESN, {
-        [OL_DATE_TIME_FQN]: [nowAsISO],
-        [OL_ROLE_FQN]: [SigningRoles.STAFF],
+        [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
+        [OL_ROLE_FQN.toString()]: [SigningRoles.STAFF],
       }]);
     }
 
@@ -367,8 +367,8 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
         // have to start at index 2
         const signatureIndex :number = witnessIndex + 2;
         associations.push([SIGNED_BY_ESN, signatureIndex, ELECTRONIC_SIGNATURES_ESN, witnessIndex, WITNESSES_ESN, {
-          [OL_DATE_TIME_FQN]: [nowAsISO],
-          [OL_ROLE_FQN]: [SigningRoles.WITNESS],
+          [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
+          [OL_ROLE_FQN.toString()]: [SigningRoles.WITNESS],
         }]);
       }
     }
@@ -538,7 +538,7 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
      */
 
     associations.push([DECRYPTED_BY_ESN, 0, DIGITAL_SIGNATURES_ESN, 0, PUBLIC_KEYS_ESN, {
-      [OL_DATE_TIME_FQN]: [nowAsISO],
+      [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
     }]);
 
     /*
@@ -546,7 +546,7 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
      */
 
     associations.push([VERIFIES_ESN, 0, DIGITAL_SIGNATURES_ESN, 0, CONSENT_FORMS_ESN, {
-      [OL_DATE_TIME_FQN]: [nowAsISO],
+      [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
     }]);
 
     /*
@@ -554,7 +554,7 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
      */
 
     associations.push([VERIFIES_ESN, 0, PUBLIC_KEYS_ESN, 0, CONSENT_FORMS_ESN, {
-      [OL_DATE_TIME_FQN]: [nowAsISO],
+      [OL_DATE_TIME_FQN.toString()]: [nowAsISO],
     }]);
 
     const associationEntityData = processAssociationEntityData(associations, entitySetIds, propertyTypeIds);
