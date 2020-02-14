@@ -7,7 +7,6 @@ type SigningRoleEnum = {|
   STAFF :'STAFF';
   WITNESS :'WITNESS';
 |};
-type SigningRole = $Values<SigningRoleEnum>;
 
 // TODO: look into using Immutable.Map() or other possible "enum" libraries
 const SigningRoles :{|...SigningRoleEnum |} = Object.freeze({
@@ -15,6 +14,8 @@ const SigningRoles :{|...SigningRoleEnum |} = Object.freeze({
   STAFF: 'STAFF',
   WITNESS: 'WITNESS',
 });
+
+type SigningRole = $Values<typeof SigningRoles>;
 
 export default SigningRoles;
 export type {

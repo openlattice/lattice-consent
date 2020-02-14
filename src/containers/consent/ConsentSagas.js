@@ -48,7 +48,7 @@ import {
   isWitnessSignatureRequired,
   signatureValueMapper,
 } from './ConsentUtils';
-import { RedirectFlowIncomingParams, RedirectFlowOutgoingParams, SigningRoles } from './constants';
+import { QueryStringParams, SigningRoles } from './constants';
 
 import Logger from '../../utils/Logger';
 import { DataActions, DataSagas } from '../../core/data';
@@ -122,17 +122,17 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
     yield put(consentInitializer.request(action.id));
 
     const qsParams = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+    const requiredParams = Object.keys(QueryStringParams)
+      .filter((param :string) => QueryStringParams[param] !== QueryStringParams.FORM_EKID);
 
-    // "redirect mode" is only considered if ALL required query string params are provided AND valid
-    let redirectURL :?URL;
     let entityKeyIds = {};
     let entitySetIds = {};
 
-    const isEveryParamProvided = Object.values(RedirectFlowIncomingParams).every((param) => has(qsParams, param));
+    const isEveryParamProvided = requiredParams.every((param) => has(qsParams, param));
     if (isEveryParamProvided) {
 
-      const qsError :?Error = Object.keys(RedirectFlowIncomingParams)
-        .filter((param :string) => RedirectFlowIncomingParams[param] !== RedirectFlowIncomingParams.REDIRECT_URL)
+      const qsError :?Error = Object.keys(QueryStringParams)
+        .filter((param :string) => QueryStringParams[param] !== QueryStringParams.FORM_EKID)
         .reduce(
           (error :any, param :string) => {
             if (isDefined(error)) return error;
@@ -146,34 +146,30 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
       if (qsError) throw qsError;
 
       entitySetIds = {
-        [CLIENTS_ESN]: qsParams[RedirectFlowIncomingParams.CLIENTS_ESID],
-        [CONSENT_FORMS_ESN]: qsParams[RedirectFlowIncomingParams.CONSENT_FORMS_ESID],
-        [CONSENT_FORM_SCHEMAS_ESN]: qsParams[RedirectFlowIncomingParams.CONSENT_FORM_SCHEMAS_ESID],
-        [DECRYPTED_BY_ESN]: qsParams[RedirectFlowIncomingParams.DECRYPTED_BY_ESID],
-        [DIGITAL_SIGNATURES_ESN]: qsParams[RedirectFlowIncomingParams.DIGITAL_SIGNATURES_ESID],
-        [ELECTRONIC_SIGNATURES_ESN]: qsParams[RedirectFlowIncomingParams.ELECTRONIC_SIGNATURES_ESID],
-        [INCLUDES_ESN]: qsParams[RedirectFlowIncomingParams.INCLUDES_ESID],
-        [LOCATED_AT_ESN]: qsParams[RedirectFlowIncomingParams.LOCATED_AT_ESID],
-        [LOCATION_ESN]: qsParams[RedirectFlowIncomingParams.LOCATION_ESID],
-        [PUBLIC_KEYS_ESN]: qsParams[RedirectFlowIncomingParams.PUBLIC_KEYS_ESID],
-        [SIGNED_BY_ESN]: qsParams[RedirectFlowIncomingParams.SIGNED_BY_ESID],
-        [STAFF_ESN]: qsParams[RedirectFlowIncomingParams.STAFF_ESID],
-        [VERIFIES_ESN]: qsParams[RedirectFlowIncomingParams.VERIFIES_ESID],
-        [WITNESSES_ESN]: qsParams[RedirectFlowIncomingParams.WITNESSES_ESID],
+        [CLIENTS_ESN]: qsParams[QueryStringParams.CLIENTS_ESID],
+        [CONSENT_FORMS_ESN]: qsParams[QueryStringParams.CONSENT_FORMS_ESID],
+        [CONSENT_FORM_SCHEMAS_ESN]: qsParams[QueryStringParams.CONSENT_FORM_SCHEMAS_ESID],
+        [DECRYPTED_BY_ESN]: qsParams[QueryStringParams.DECRYPTED_BY_ESID],
+        [DIGITAL_SIGNATURES_ESN]: qsParams[QueryStringParams.DIGITAL_SIGNATURES_ESID],
+        [ELECTRONIC_SIGNATURES_ESN]: qsParams[QueryStringParams.ELECTRONIC_SIGNATURES_ESID],
+        [INCLUDES_ESN]: qsParams[QueryStringParams.INCLUDES_ESID],
+        [LOCATED_AT_ESN]: qsParams[QueryStringParams.LOCATED_AT_ESID],
+        [LOCATION_ESN]: qsParams[QueryStringParams.LOCATION_ESID],
+        [PUBLIC_KEYS_ESN]: qsParams[QueryStringParams.PUBLIC_KEYS_ESID],
+        [SIGNED_BY_ESN]: qsParams[QueryStringParams.SIGNED_BY_ESID],
+        [STAFF_ESN]: qsParams[QueryStringParams.STAFF_ESID],
+        [VERIFIES_ESN]: qsParams[QueryStringParams.VERIFIES_ESID],
+        [WITNESSES_ESN]: qsParams[QueryStringParams.WITNESSES_ESID],
       };
 
       entityKeyIds = {
-        clientEntityKeyId: qsParams[RedirectFlowIncomingParams.CLIENT_EKID],
-        schemaEntityKeyId: qsParams[RedirectFlowIncomingParams.SCHEMA_EKID],
-        staffEntityKeyId: qsParams[RedirectFlowIncomingParams.STAFF_EKID],
+        clientEntityKeyId: qsParams[QueryStringParams.CLIENT_EKID],
+        schemaEntityKeyId: qsParams[QueryStringParams.SCHEMA_EKID],
+        staffEntityKeyId: qsParams[QueryStringParams.STAFF_EKID],
       };
-
-      // new URL() throws TypeError when given an invalid URL
-      // $FlowFixMe
-      redirectURL = new URL(qsParams[RedirectFlowIncomingParams.REDIRECT_URL]);
     }
 
-    yield put(consentInitializer.success(action.id, { entityKeyIds, entitySetIds, redirectURL }));
+    yield put(consentInitializer.success(action.id, { entityKeyIds, entitySetIds }));
   }
   catch (error) {
     LOG.error(action.type, error);
@@ -210,21 +206,18 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
       clientEntityKeyId,
       entitySetIds,
       propertyTypeIds,
-      redirectURL,
       schema,
       staffEntityKeyId,
     } :{
       clientEntityKeyId :UUID;
       entitySetIds :Map<string, UUID>;
       propertyTypeIds :Map<string, UUID>;
-      redirectURL :?URL;
       schema :Object;
       staffEntityKeyId :UUID;
     } = yield select((state) => ({
       clientEntityKeyId: state.getIn(['consent', 'clientEntityKeyId']),
       entitySetIds: state.getIn(['edm', 'entitySetIds']),
       propertyTypeIds: state.getIn(['edm', 'propertyTypeIds']),
-      redirectURL: state.getIn(['consent', 'redirectURL']),
       schema: state.getIn(['consent', 'schema']),
       staffEntityKeyId: state.getIn(['consent', 'staffEntityKeyId']),
     }));
@@ -404,6 +397,10 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
        */
 
       const valueMappers = Map().withMutations((map :Map) => {
+        /*
+         * !!! IMPORTANT !!!
+         * all dates need to be overwritten with the datetime of submission
+         */
         map.set(CLIENT_SIGNATURE_DATE_EAK, () => nowAsISO);
         map.set(CLIENT_SIGNATURE_DATA_EAK, signatureValueMapper);
         if (staffSignatureRequired) {
@@ -570,16 +567,6 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
       throw response.error;
     }
 
-    if (redirectURL) {
-      const finalRedirectURL = new URL(redirectURL.href);
-      const formEntityKeyId :UUID = getIn(response.data, ['entityKeyIds', entitySetIds.get(CONSENT_FORMS_ESN), 0]);
-      finalRedirectURL.search = qs.stringify({
-        [RedirectFlowOutgoingParams.CLIENT_EKID]: clientEntityKeyId,
-        [RedirectFlowOutgoingParams.FORM_EKID]: formEntityKeyId,
-      });
-      window.location.replace(finalRedirectURL.href);
-    }
-
     yield put(submitConsent.success(action.id));
   }
   catch (error) {
@@ -605,9 +592,13 @@ function* submitConsentWatcher() :Generator<*, *, *> {
 function* getConsentFormSchemaWorker(action :SequenceAction) :Generator<*, *, *> {
 
   try {
-    yield put(getConsentFormSchema.request(action.id, action.value));
+    yield put(getConsentFormSchema.request(action.id));
 
-    const { schemaEntityKeyId, schemasEntitySetId } = action.value;
+    const { schemaEntityKeyId, schemasEntitySetId } = yield select((state) => ({
+      schemaEntityKeyId: state.getIn(['consent', 'schemaEntityKeyId']),
+      schemasEntitySetId: state.getIn(['edm', 'entitySetIds', CONSENT_FORM_SCHEMAS_ESN]),
+    }));
+
     const response = yield call(
       getEntityDataWorker,
       getEntityData({ entityKeyId: schemaEntityKeyId, entitySetId: schemasEntitySetId })

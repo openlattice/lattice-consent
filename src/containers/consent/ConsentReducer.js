@@ -20,7 +20,6 @@ import {
 const INITIAL_STATE :Map<*, *> = fromJS({
   [GET_CONSENT_FORM_SCHEMA]: { requestState: RequestStates.STANDBY },
   clientEntityKeyId: undefined,
-  redirectURL: undefined,
   schema: undefined,
   schemaEntityKeyId: undefined,
   staffEntityKeyId: undefined,
@@ -44,10 +43,9 @@ export default function reducer(state :Map<*, *> = INITIAL_STATE, action :Object
         SUCCESS: () => {
           const storedSeqAction :SequenceAction = state.getIn([CONSENT_INITIALIZER, seqAction.id]);
           if (storedSeqAction) {
-            const { entityKeyIds, redirectURL } = seqAction.value;
+            const { entityKeyIds } = seqAction.value;
             return state
               .set('clientEntityKeyId', entityKeyIds.clientEntityKeyId)
-              .set('redirectURL', redirectURL)
               .set('schemaEntityKeyId', entityKeyIds.schemaEntityKeyId)
               .set('staffEntityKeyId', entityKeyIds.staffEntityKeyId)
               .setIn([CONSENT_INITIALIZER, 'requestState'], RequestStates.SUCCESS);

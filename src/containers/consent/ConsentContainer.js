@@ -2,228 +2,147 @@
  * @flow
  */
 
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import styled from 'styled-components';
 import { Map, fromJS, getIn } from 'immutable';
 import { Form } from 'lattice-fabricate';
-import { Card, Spinner } from 'lattice-ui-kit';
+import { Spinner } from 'lattice-ui-kit';
 import { DateTime } from 'luxon';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
-import type { RequestSequence, RequestState } from 'redux-reqseq';
+import type { RequestState } from 'redux-reqseq';
 
 import * as ConsentActions from './ConsentActions';
-import {
+import * as ConsentSchema from './ConsentSchema';
+import * as ConsentUtils from './ConsentUtils';
+
+import { Frame, Text } from '../../components';
+import { useGeo } from '../../core/geo';
+import { GeoErrorComponent } from '../../core/geo/components';
+
+const {
+  GET_CONSENT_FORM_SCHEMA,
+  SUBMIT_CONSENT,
+  getConsentFormSchema,
+  submitConsent,
+} = ConsentActions;
+
+const {
   WITNESS_PSK,
   WITNESS_SIGNATURE_DATE_EAK,
-} from './ConsentSchema';
-import {
-  countAdditionalWitnesses,
-  initializeDataWithGeo,
-  initializeDataWithSchema,
-} from './ConsentUtils';
+} = ConsentSchema;
 
-import { EntitySetNames } from '../../core/edm/constants';
-import { GeoActions, GeoErrors, withGeo } from '../../core/geo';
-import { RoutingActions } from '../../core/router';
+const ConsentContainer = () => {
 
-const { GET_CONSENT_FORM_SCHEMA, SUBMIT_CONSENT } = ConsentActions;
-const { GET_GEO_LOCATION } = GeoActions;
-const { CONSENT_FORM_SCHEMAS_ESN } = EntitySetNames.ENTITY_SET_NAMES;
+  const [data, setData] = useState(Map());
 
-const Error = styled.div`
-  margin-top: 50px;
-  text-align: center;
-`;
+  const schema :Object = useSelector(
+    (store) => store.getIn(['consent', 'schema'])
+  );
+  const getConsentFormSchemaRS :RequestState = useSelector(
+    (store) => store.getIn(['consent', GET_CONSENT_FORM_SCHEMA, 'requestState'])
+  );
+  const submitConsentRS :RequestState = useSelector(
+    (store) => store.getIn(['consent', SUBMIT_CONSENT, 'requestState'])
+  );
 
-type Props = {
-  actions :{
-    getConsentFormSchema :RequestSequence;
-    submitConsent :RequestSequence;
-  };
-  geo :{
-    error :Map<*, *>;
-    geolocation :?Position;
-    requestStates :{
-      GET_GEO_LOCATION :RequestState;
-    };
-  };
-  requestStates :{
-    GET_CONSENT_FORM_SCHEMA :RequestState;
-    SUBMIT_CONSENT :RequestState;
-  };
-  schema :Object;
-  schemaEntityKeyId :UUID;
-  schemasEntitySetId :UUID;
-};
+  const dispatch = useDispatch();
+  const [geoPosition, geoError, isPendingGeo] = useGeo();
 
-type State = {
-  data :Map;
-};
+  useEffect(() => {
+    dispatch(getConsentFormSchema());
+  }, [dispatch]);
 
-class ConsentContainer extends Component<Props, State> {
-
-  constructor(props :Props) {
-
-    super(props);
-    this.state = {
-      data: Map(),
-    };
-  }
-
-  componentDidMount() {
-
-    const { actions, schemaEntityKeyId, schemasEntitySetId } = this.props;
-    actions.getConsentFormSchema({ schemaEntityKeyId, schemasEntitySetId });
-  }
-
-  componentDidUpdate(props :Props) {
-
-    const { geo, requestStates, schema } = this.props;
-    const { data } = this.state;
-
-    if (props.requestStates[GET_CONSENT_FORM_SCHEMA] === RequestStates.PENDING
-        && requestStates[GET_CONSENT_FORM_SCHEMA] === RequestStates.SUCCESS) {
-      this.setState({
-        data: initializeDataWithSchema(data, schema)
-      });
+  useEffect(() => {
+    if (getConsentFormSchemaRS === RequestStates.SUCCESS) {
+      setData(
+        (prevData) => ConsentUtils.initializeDataWithSchema(prevData, schema)
+      );
     }
+  }, [getConsentFormSchemaRS, schema]);
 
-    if (props.geo.requestStates[GET_GEO_LOCATION] === RequestStates.PENDING
-        && geo.requestStates[GET_GEO_LOCATION] === RequestStates.SUCCESS
-        && geo.geolocation) {
-      this.setState({
-        data: initializeDataWithGeo(data, geo.geolocation)
-      });
+  useEffect(() => {
+    if (geoPosition) {
+      setData(
+        (prevData) => ConsentUtils.initializeDataWithGeo(prevData, geoPosition)
+      );
     }
-  }
+  }, [geoPosition]);
 
-  onChange = ({ formData } :Object) => {
+  const onChange = ({ formData } :Object) => {
 
-    const { data } = this.state;
     let newData = fromJS(formData);
 
-    const countBefore :number = countAdditionalWitnesses(data);
-    const countAfter :number = countAdditionalWitnesses(newData);
+    const countBefore :number = ConsentUtils.countAdditionalWitnesses(data);
+    const countAfter :number = ConsentUtils.countAdditionalWitnesses(newData);
     // only pre-fill date if we're adding a witness
     if (countAfter > 0 && countAfter > countBefore) {
       newData = newData.setIn(
         [WITNESS_PSK, countAfter - 1, WITNESS_SIGNATURE_DATE_EAK],
-        DateTime.local().toISO(),
+        DateTime.local().toISODate(),
       );
     }
 
     if (!data.equals(newData)) {
-      this.setState({ data: newData });
+      setData(newData);
     }
-  }
+  };
 
-  onSubmit = () => {
+  const onSubmit = () => {
+    dispatch(submitConsent({ data }));
+  };
 
-    const { actions } = this.props;
-    const { data } = this.state;
-    actions.submitConsent({ data });
-  }
+  /*
+   * render
+   */
 
-  renderGeoError = () => {
-
-    const { geo } = this.props;
-
-    if (geo.error) {
-      if (geo.error.get('message') === GeoErrors.PERMISSION_DENIED) {
-        return (
-          <Error>
-            <div>It seems your browser permissions have denied access to Location.</div>
-            <div>Please make sure your browser settings are configured to allow access to Location.</div>
-          </Error>
-        );
-      }
-      if (geo.error.get('message') === GeoErrors.NOT_SUPPORTED) {
-        return (
-          <Error>
-            <div>It seems your browser does not support Location.</div>
-            <div>Please make sure you are using a compatible browser.</div>
-          </Error>
-        );
-      }
-    }
-
+  if (geoError) {
     return (
-      <Error>
-        <div>Sorry, there was an issue with browser geolocation.</div>
-        <div>Please make sure your browser settings allow access to Location.</div>
-      </Error>
+      <Frame>
+        <GeoErrorComponent error={geoError} />
+      </Frame>
     );
   }
 
-  render() {
-
-    const { geo, requestStates, schema } = this.props;
-    const { data } = this.state;
-
-    const isPending = geo.requestStates[GET_GEO_LOCATION] === RequestStates.PENDING
-      || requestStates[GET_CONSENT_FORM_SCHEMA] === RequestStates.PENDING;
-
-    if (isPending) {
-      return (
-        <Spinner size="2x" />
-      );
-    }
-
-    if (geo.requestStates[GET_GEO_LOCATION] === RequestStates.FAILURE) {
-      return this.renderGeoError();
-    }
-
-    if (requestStates[GET_CONSENT_FORM_SCHEMA] === RequestStates.FAILURE) {
-      return (
-        <Error>
+  if (getConsentFormSchemaRS === RequestStates.FAILURE) {
+    return (
+      <Frame>
+        <Text align="center">
           Sorry, there was an issue getting the consent form. Please try refreshing the page, or contact support.
-        </Error>
-      );
-    }
-
-    if (requestStates[GET_CONSENT_FORM_SCHEMA] === RequestStates.SUCCESS
-        && geo.requestStates[GET_GEO_LOCATION] === RequestStates.SUCCESS) {
-      return (
-        <Card>
-          <Form
-              formData={data.toJS()}
-              isSubmitting={requestStates[SUBMIT_CONSENT] === RequestStates.PENDING}
-              onChange={this.onChange}
-              onSubmit={this.onSubmit}
-              schema={getIn(schema, ['dataSchema', 0])}
-              uiSchema={getIn(schema, ['uiSchema', 0])} />
-        </Card>
-      );
-    }
-
-    return (
-      <Error>
-        Sorry, the application is in an unexpected state. Please try refreshing the page, or contact support.
-      </Error>
+        </Text>
+      </Frame>
     );
   }
-}
 
-const mapStateToProps = (state) => ({
-  requestStates: {
-    [GET_CONSENT_FORM_SCHEMA]: state.getIn(['consent', GET_CONSENT_FORM_SCHEMA, 'requestState']),
-    [SUBMIT_CONSENT]: state.getIn(['consent', SUBMIT_CONSENT, 'requestState']),
-  },
-  schema: state.getIn(['consent', 'schema']),
-  schemaEntityKeyId: state.getIn(['consent', 'schemaEntityKeyId']),
-  schemasEntitySetId: state.getIn(['edm', 'entitySetIds', CONSENT_FORM_SCHEMAS_ESN]),
-});
+  if (getConsentFormSchemaRS === RequestStates.PENDING || isPendingGeo) {
+    return (
+      <Frame>
+        <Spinner size="2x" />
+      </Frame>
+    );
+  }
 
-const mapActionsToProps = (dispatch) => ({
-  actions: bindActionCreators({
-    getConsentFormSchema: ConsentActions.getConsentFormSchema,
-    goToRoute: RoutingActions.goToRoute,
-    submitConsent: ConsentActions.submitConsent,
-  }, dispatch)
-});
+  if (getConsentFormSchemaRS === RequestStates.SUCCESS && geoPosition) {
+    return (
+      <Frame padding="0">
+        <Form
+            formData={data.toJS()}
+            isSubmitting={submitConsentRS === RequestStates.PENDING}
+            onChange={onChange}
+            onSubmit={onSubmit}
+            schema={getIn(schema, ['dataSchema', 0])}
+            uiSchema={getIn(schema, ['uiSchema', 0])} />
+      </Frame>
+    );
+  }
 
-// $FlowFixMe
-export default connect(mapStateToProps, mapActionsToProps)(withGeo(ConsentContainer));
+  return (
+    <Frame>
+      <Text align="center">
+        Sorry, the application is in an unexpected state. Please try refreshing the page, or contact support.
+      </Text>
+    </Frame>
+  );
+};
+
+export default ConsentContainer;

@@ -46,9 +46,3 @@ export {
   SCHEMA_EKID,
   STAFF_EKID,
 };
-
-const REDIRECT_URL :'redirectURL' = 'redirectURL';
-
-export {
-  REDIRECT_URL,
-};
