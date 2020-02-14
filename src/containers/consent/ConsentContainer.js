@@ -47,7 +47,7 @@ const ConsentContainer = () => {
   );
 
   const dispatch = useDispatch();
-  const [position, getGeoRS, geoError] = useGeo();
+  const [geoPosition, geoError, isPendingGeo] = useGeo();
 
   useEffect(() => {
     dispatch(getConsentFormSchema());
@@ -62,12 +62,12 @@ const ConsentContainer = () => {
   }, [getConsentFormSchemaRS, schema]);
 
   useEffect(() => {
-    if (getGeoRS === RequestStates.SUCCESS && position) {
+    if (geoPosition) {
       setData(
-        (prevData) => ConsentUtils.initializeDataWithGeo(prevData, position)
+        (prevData) => ConsentUtils.initializeDataWithGeo(prevData, geoPosition)
       );
     }
-  }, [position, getGeoRS]);
+  }, [geoPosition]);
 
   const onChange = ({ formData } :Object) => {
 
@@ -114,10 +114,7 @@ const ConsentContainer = () => {
     );
   }
 
-  const isPending = getConsentFormSchemaRS === RequestStates.PENDING
-    || getGeoRS === RequestStates.PENDING;
-
-  if (isPending) {
+  if (getConsentFormSchemaRS === RequestStates.PENDING || isPendingGeo) {
     return (
       <Frame>
         <Spinner size="2x" />
@@ -125,8 +122,7 @@ const ConsentContainer = () => {
     );
   }
 
-  if (getConsentFormSchemaRS === RequestStates.SUCCESS
-      && getGeoRS === RequestStates.SUCCESS) {
+  if (getConsentFormSchemaRS === RequestStates.SUCCESS && geoPosition) {
     return (
       <Frame padding="0">
         <Form
