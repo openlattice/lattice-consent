@@ -9,6 +9,8 @@ import {
   initializeApplicationWatcher,
   initializeApplicationWorker,
 } from './AppSagas';
+import { CONSENT_INITIALIZER } from '../consent/ConsentActions';
+import { consentInitializerWorker } from '../consent/ConsentSagas';
 
 import { EDMActions, EDMSagas } from '../../core/edm';
 import {
@@ -19,6 +21,8 @@ import {
 
 const { GET_EDM_TYPES } = EDMActions;
 const { getEntityDataModelTypesWorker } = EDMSagas;
+
+const EMPTY_RESPONSE = { data: true };
 
 describe('AppSagas', () => {
 
@@ -61,10 +65,11 @@ describe('AppSagas', () => {
       expect(step.value).toEqual(
         all([
           call(getEntityDataModelTypesWorker, { id: expect.any(String), type: GET_EDM_TYPES, value: {} }),
+          call(consentInitializerWorker, { id: expect.any(String), type: CONSENT_INITIALIZER, value: {} }),
         ])
       );
 
-      step = iterator.next([{ data: true }]);
+      step = iterator.next([EMPTY_RESPONSE, EMPTY_RESPONSE]);
       expect(step.value).toEqual(
         put({
           id: workerSagaAction.id,
