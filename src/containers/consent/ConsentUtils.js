@@ -11,6 +11,7 @@ import {
   hasIn,
   isCollection,
   setIn,
+  remove,
 } from 'immutable';
 import { DateTime } from 'luxon';
 
@@ -91,18 +92,27 @@ function initializeDataWithGeo(data :Object | Map, geolocation :Position) :Map {
 
 function initializeDataWithSchema(data :Object | Map, schema :Object) :Map {
 
-  const nowAsISO = DateTime.local().toISO();
+  // toISO() caused an infinite render loop due to the millisecond granularity of toISO(). the fix was to refactor
+  // the useSelector() and useEffect() logic, but using toISODate() is an extra defensive step. furthermore, it's ok
+  // to use toISODate() here all dates will be overwritten at the time of submission in the saga.
+  const nowAsISODate = DateTime.local().toISODate();
 
   let newData = fromJS(data);
   newData = setIn(newData, [CONSENT_FORM_PSK, CONSENT_FORM_SCHEMA_EAK], JSON.stringify(schema));
-  newData = setIn(newData, [CLIENT_PSK, CLIENT_SIGNATURE_DATE_EAK], nowAsISO);
+  newData = setIn(newData, [CLIENT_PSK, CLIENT_SIGNATURE_DATE_EAK], nowAsISODate);
 
   if (isStaffSignatureRequired(schema)) {
-    newData = setIn(newData, [STAFF_PSK, STAFF_SIGNATURE_DATE_EAK], nowAsISO);
+    newData = setIn(newData, [STAFF_PSK, STAFF_SIGNATURE_DATE_EAK], nowAsISODate);
+  }
+  else {
+    newData = remove(newData, STAFF_PSK);
   }
 
   if (isWitnessSignatureRequired(schema)) {
     newData = setIn(newData, [WITNESS_PSK], List());
+  }
+  else {
+    newData = remove(newData, WITNESS_PSK);
   }
 
   return newData;

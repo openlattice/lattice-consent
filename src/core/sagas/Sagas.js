@@ -9,7 +9,6 @@ import { DataApiSagas } from 'lattice-sagas';
 import { AppSagas } from '../../containers/app';
 import { ConsentSagas } from '../../containers/consent';
 import { EDMSagas } from '../edm';
-import { GeoSagas } from '../geo';
 import { RoutingSagas } from '../router';
 
 export default function* sagas() :Generator<*, *, *> {
@@ -34,9 +33,6 @@ export default function* sagas() :Generator<*, *, *> {
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),
     fork(RoutingSagas.goToRouteWatcher),
-
-    // GeoSagas
-    fork(GeoSagas.getGeoLocationWatcher),
 
     // ConsentSagas
     fork(ConsentSagas.consentInitializerWatcher),

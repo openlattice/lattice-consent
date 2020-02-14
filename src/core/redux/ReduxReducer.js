@@ -9,7 +9,6 @@ import { combineReducers } from 'redux-immutable';
 import { AppReducer } from '../../containers/app';
 import { ConsentReducer } from '../../containers/consent';
 import { EDMReducer } from '../edm';
-import { GeoReducer } from '../geo';
 
 export default function reduxReducer(routerHistory :any) {
 
@@ -18,7 +17,6 @@ export default function reduxReducer(routerHistory :any) {
     auth: AuthReducer,
     consent: ConsentReducer,
     edm: EDMReducer,
-    geo: GeoReducer,
     router: connectRouter(routerHistory),
   });
 }
