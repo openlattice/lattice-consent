@@ -123,7 +123,10 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
 
     const qsParams = qs.parse(window.location.search, { ignoreQueryPrefix: true });
     const requiredParams = Object.keys(QueryStringParams)
-      .filter((param :string) => QueryStringParams[param] !== QueryStringParams.FORM_EKID);
+      .filter((param :string) => (
+        QueryStringParams[param] !== QueryStringParams.CHANNEL_ID // CHANNEL_ID is optional, but recommended
+        && QueryStringParams[param] !== QueryStringParams.FORM_EKID // FORM_EKID is for after submit
+      ));
 
     let entityKeyIds = {};
     let entitySetIds = {};
@@ -169,7 +172,13 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
       };
     }
 
-    yield put(consentInitializer.success(action.id, { entityKeyIds, entitySetIds }));
+    // a helper for iframe comms
+    let channelId :?UUID;
+    if (isValidUUID(get(qsParams, QueryStringParams.CHANNEL_ID))) {
+      channelId = get(qsParams, QueryStringParams.CHANNEL_ID);
+    }
+
+    yield put(consentInitializer.success(action.id, { channelId, entityKeyIds, entitySetIds }));
   }
   catch (error) {
     LOG.error(action.type, error);

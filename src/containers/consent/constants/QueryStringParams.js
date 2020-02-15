@@ -46,3 +46,9 @@ export {
   SCHEMA_EKID,
   STAFF_EKID,
 };
+
+const CHANNEL_ID :'CHANNEL_ID' = 'CHANNEL_ID';
+
+export {
+  CHANNEL_ID,
+};
