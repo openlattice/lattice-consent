@@ -124,10 +124,10 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
     const qsParams = qs.parse(window.location.search, { ignoreQueryPrefix: true });
     const requiredParams = Object.keys(QueryStringParams)
       .filter((param :string) => (
-        QueryStringParams[param] !== QueryStringParams.CHANNEL_ID // CHANNEL_ID is optional, but recommended
-        && QueryStringParams[param] !== QueryStringParams.FORM_EKID // FORM_EKID is for after submit
+        QueryStringParams[param] !== QueryStringParams.FORM_EKID // FORM_EKID is for after submit
       ));
 
+    let channelId;
     let entityKeyIds = {};
     let entitySetIds = {};
 
@@ -145,6 +145,8 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
         undefined,
       );
       if (qsError) throw qsError;
+
+      channelId = qsParams[QueryStringParams.CHANNEL_ID];
 
       entitySetIds = {
         [CLIENTS_ESN]: qsParams[QueryStringParams.CLIENTS_ESID],
@@ -168,11 +170,6 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
         schemaEntityKeyId: qsParams[QueryStringParams.SCHEMA_EKID],
         staffEntityKeyId: qsParams[QueryStringParams.STAFF_EKID],
       };
-    }
-
-    let channelId :?UUID;
-    if (isValidUUID(get(qsParams, QueryStringParams.CHANNEL_ID))) {
-      channelId = get(qsParams, QueryStringParams.CHANNEL_ID);
     }
 
     yield put(consentInitializer.success(action.id, { channelId, entityKeyIds, entitySetIds }));
