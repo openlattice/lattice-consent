@@ -78,7 +78,7 @@ const ConsentContainer = () => {
           state: submitConsentRS,
         },
       };
-      window.parent.postMessage(message, window.location.href);
+      window.parent.postMessage(message, window.location.origin);
     }
   }, [channelId, submitConsentRS]);
 
