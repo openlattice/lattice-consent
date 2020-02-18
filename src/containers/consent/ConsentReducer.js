@@ -19,6 +19,7 @@ import {
 
 const INITIAL_STATE :Map<*, *> = fromJS({
   [GET_CONSENT_FORM_SCHEMA]: { requestState: RequestStates.STANDBY },
+  [SUBMIT_CONSENT]: { requestState: RequestStates.STANDBY },
   clientEntityKeyId: undefined,
   channelId: undefined,
   schema: undefined,

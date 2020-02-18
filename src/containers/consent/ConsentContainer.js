@@ -19,6 +19,7 @@ import * as ConsentUtils from './ConsentUtils';
 import { Frame, Text } from '../../components';
 import { useGeo } from '../../core/geo';
 import { GeoErrorComponent } from '../../core/geo/components';
+import { ValidationUtils } from '../../utils';
 
 const {
   GET_CONSENT_FORM_SCHEMA,
@@ -36,9 +37,8 @@ const ConsentContainer = () => {
 
   const [data, setData] = useState(Map());
 
-  const schema :Object = useSelector(
-    (store) => store.getIn(['consent', 'schema'])
-  );
+  const channelId :?UUID = useSelector((store) => store.getIn(['consent', 'channelId']));
+  const schema :Object = useSelector((store) => store.getIn(['consent', 'schema']));
   const getConsentFormSchemaRS :RequestState = useSelector(
     (store) => store.getIn(['consent', GET_CONSENT_FORM_SCHEMA, 'requestState'])
   );
@@ -68,6 +68,19 @@ const ConsentContainer = () => {
       );
     }
   }, [geoPosition]);
+
+  useEffect(() => {
+    if (ValidationUtils.isValidUUID(channelId)) {
+      const message = {
+        id: channelId,
+        value: {
+          action: SUBMIT_CONSENT,
+          state: submitConsentRS,
+        },
+      };
+      window.parent.postMessage(message, window.location.href);
+    }
+  }, [channelId, submitConsentRS]);
 
   const onChange = ({ formData } :Object) => {
 

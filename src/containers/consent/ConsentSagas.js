@@ -134,18 +134,16 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
     const isEveryParamProvided = requiredParams.every((param) => has(qsParams, param));
     if (isEveryParamProvided) {
 
-      const qsError :?Error = Object.keys(QueryStringParams)
-        .filter((param :string) => QueryStringParams[param] !== QueryStringParams.FORM_EKID)
-        .reduce(
-          (error :any, param :string) => {
-            if (isDefined(error)) return error;
-            if (!has(qsParams, param)) return new Error(`missing a required query string param: ${param}`);
-            const id = get(qsParams, param);
-            if (!isValidUUID(id)) return new Error(`query string param must be a valid UUID: ${param} ${id}`);
-            return undefined;
-          },
-          undefined,
-        );
+      const qsError :?Error = requiredParams.reduce(
+        (error :any, param :string) => {
+          if (isDefined(error)) return error;
+          if (!has(qsParams, param)) return new Error(`missing a required query string param: ${param}`);
+          const id = get(qsParams, param);
+          if (!isValidUUID(id)) return new Error(`query string param must be a valid UUID: ${param} ${id}`);
+          return undefined;
+        },
+        undefined,
+      );
       if (qsError) throw qsError;
 
       entitySetIds = {
