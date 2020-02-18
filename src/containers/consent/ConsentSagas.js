@@ -170,7 +170,6 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
       };
     }
 
-    // a helper for iframe comms
     let channelId :?UUID;
     if (isValidUUID(get(qsParams, QueryStringParams.CHANNEL_ID))) {
       channelId = get(qsParams, QueryStringParams.CHANNEL_ID);
