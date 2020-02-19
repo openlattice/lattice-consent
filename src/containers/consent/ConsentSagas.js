@@ -121,7 +121,12 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
   try {
     yield put(consentInitializer.request(action.id));
 
-    const qsParams = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+    let queryString :string = window.location.search || window.location.hash || '';
+    if (LangUtils.isNonEmptyString(queryString)) {
+      queryString = queryString.slice(queryString.indexOf('?'));
+    }
+
+    const qsParams = qs.parse(queryString, { ignoreQueryPrefix: true });
     const requiredParams = Object.keys(QueryStringParams)
       .filter((param :string) => (
         QueryStringParams[param] !== QueryStringParams.FORM_EKID // FORM_EKID is for after submit
