@@ -2,11 +2,12 @@
  * @flow
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
+import styled from 'styled-components';
 import { Map, fromJS, getIn } from 'immutable';
 import { Form } from 'lattice-fabricate';
-import { Spinner } from 'lattice-ui-kit';
+import { Button, Spinner } from 'lattice-ui-kit';
 import { DateTime } from 'luxon';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -33,8 +34,14 @@ const {
   WITNESS_SIGNATURE_DATE_EAK,
 } = ConsentSchema;
 
+const SubmitButton = styled(Button)`
+  width: 200px;
+  margin: 0 0 30px 30px;
+`;
+
 const ConsentContainer = () => {
 
+  const formRef = useRef();
   const [data, setData] = useState(Map());
 
   const channelId :?UUID = useSelector((store) => store.getIn(['consent', 'channelId']));
@@ -101,6 +108,12 @@ const ConsentContainer = () => {
     }
   };
 
+  const onClickSubmit = () => {
+    if (formRef.current) {
+      formRef.current.submit();
+    }
+  };
+
   const onSubmit = () => {
     dispatch(submitConsent({ data }));
   };
@@ -136,15 +149,19 @@ const ConsentContainer = () => {
   }
 
   if (getConsentFormSchemaRS === RequestStates.SUCCESS && geoPosition) {
+    const isSubmitting = submitConsentRS === RequestStates.PENDING;
     return (
       <Frame padding="0">
         <Form
+            disabled={isSubmitting}
             formData={data.toJS()}
-            isSubmitting={submitConsentRS === RequestStates.PENDING}
+            hideSubmit
             onChange={onChange}
             onSubmit={onSubmit}
+            ref={formRef}
             schema={getIn(schema, ['dataSchema', 0])}
             uiSchema={getIn(schema, ['uiSchema', 0])} />
+        <SubmitButton isLoading={isSubmitting} mode="primary" onClick={onClickSubmit}>Submit</SubmitButton>
       </Frame>
     );
   }
