@@ -2,11 +2,12 @@
  * @flow
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
+import styled from 'styled-components';
 import { Map, fromJS, getIn } from 'immutable';
 import { Form } from 'lattice-fabricate';
-import { Spinner } from 'lattice-ui-kit';
+import { Button, Spinner } from 'lattice-ui-kit';
 import { DateTime } from 'luxon';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -19,6 +20,7 @@ import * as ConsentUtils from './ConsentUtils';
 import { Frame, Text } from '../../components';
 import { useGeo } from '../../core/geo';
 import { GeoErrorComponent } from '../../core/geo/components';
+import { ValidationUtils } from '../../utils';
 
 const {
   GET_CONSENT_FORM_SCHEMA,
@@ -32,13 +34,18 @@ const {
   WITNESS_SIGNATURE_DATE_EAK,
 } = ConsentSchema;
 
+const SubmitButton = styled(Button)`
+  width: 200px;
+  margin: 0 0 30px 30px;
+`;
+
 const ConsentContainer = () => {
 
+  const formRef = useRef();
   const [data, setData] = useState(Map());
 
-  const schema :Object = useSelector(
-    (store) => store.getIn(['consent', 'schema'])
-  );
+  const channelId :?UUID = useSelector((store) => store.getIn(['consent', 'channelId']));
+  const schema :Object = useSelector((store) => store.getIn(['consent', 'schema']));
   const getConsentFormSchemaRS :RequestState = useSelector(
     (store) => store.getIn(['consent', GET_CONSENT_FORM_SCHEMA, 'requestState'])
   );
@@ -69,6 +76,19 @@ const ConsentContainer = () => {
     }
   }, [geoPosition]);
 
+  useEffect(() => {
+    if (ValidationUtils.isValidUUID(channelId)) {
+      const message = {
+        id: channelId,
+        value: {
+          action: SUBMIT_CONSENT,
+          state: submitConsentRS,
+        },
+      };
+      window.parent.postMessage(message, window.location.origin);
+    }
+  }, [channelId, submitConsentRS]);
+
   const onChange = ({ formData } :Object) => {
 
     let newData = fromJS(formData);
@@ -85,6 +105,12 @@ const ConsentContainer = () => {
 
     if (!data.equals(newData)) {
       setData(newData);
+    }
+  };
+
+  const onClickSubmit = () => {
+    if (formRef.current) {
+      formRef.current.submit();
     }
   };
 
@@ -123,15 +149,19 @@ const ConsentContainer = () => {
   }
 
   if (getConsentFormSchemaRS === RequestStates.SUCCESS && geoPosition) {
+    const isSubmitting = submitConsentRS === RequestStates.PENDING;
     return (
       <Frame padding="0">
         <Form
+            disabled={isSubmitting}
             formData={data.toJS()}
-            isSubmitting={submitConsentRS === RequestStates.PENDING}
+            hideSubmit
             onChange={onChange}
             onSubmit={onSubmit}
+            ref={formRef}
             schema={getIn(schema, ['dataSchema', 0])}
             uiSchema={getIn(schema, ['uiSchema', 0])} />
+        <SubmitButton isLoading={isSubmitting} mode="primary" onClick={onClickSubmit}>Submit</SubmitButton>
       </Frame>
     );
   }

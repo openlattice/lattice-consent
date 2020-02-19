@@ -19,7 +19,9 @@ import {
 
 const INITIAL_STATE :Map<*, *> = fromJS({
   [GET_CONSENT_FORM_SCHEMA]: { requestState: RequestStates.STANDBY },
+  [SUBMIT_CONSENT]: { requestState: RequestStates.STANDBY },
   clientEntityKeyId: undefined,
+  channelId: undefined,
   schema: undefined,
   schemaEntityKeyId: undefined,
   staffEntityKeyId: undefined,
@@ -43,8 +45,9 @@ export default function reducer(state :Map<*, *> = INITIAL_STATE, action :Object
         SUCCESS: () => {
           const storedSeqAction :SequenceAction = state.getIn([CONSENT_INITIALIZER, seqAction.id]);
           if (storedSeqAction) {
-            const { entityKeyIds } = seqAction.value;
+            const { channelId, entityKeyIds } = seqAction.value;
             return state
+              .set('channelId', channelId)
               .set('clientEntityKeyId', entityKeyIds.clientEntityKeyId)
               .set('schemaEntityKeyId', entityKeyIds.schemaEntityKeyId)
               .set('staffEntityKeyId', entityKeyIds.staffEntityKeyId)

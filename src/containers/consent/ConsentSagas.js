@@ -121,29 +121,37 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
   try {
     yield put(consentInitializer.request(action.id));
 
-    const qsParams = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-    const requiredParams = Object.keys(QueryStringParams)
-      .filter((param :string) => QueryStringParams[param] !== QueryStringParams.FORM_EKID);
+    let queryString :string = window.location.search || window.location.hash || '';
+    if (LangUtils.isNonEmptyString(queryString)) {
+      queryString = queryString.slice(queryString.indexOf('?'));
+    }
 
+    const qsParams = qs.parse(queryString, { ignoreQueryPrefix: true });
+    const requiredParams = Object.keys(QueryStringParams)
+      .filter((param :string) => (
+        QueryStringParams[param] !== QueryStringParams.FORM_EKID // FORM_EKID is for after submit
+      ));
+
+    let channelId;
     let entityKeyIds = {};
     let entitySetIds = {};
 
     const isEveryParamProvided = requiredParams.every((param) => has(qsParams, param));
     if (isEveryParamProvided) {
 
-      const qsError :?Error = Object.keys(QueryStringParams)
-        .filter((param :string) => QueryStringParams[param] !== QueryStringParams.FORM_EKID)
-        .reduce(
-          (error :any, param :string) => {
-            if (isDefined(error)) return error;
-            if (!has(qsParams, param)) return new Error(`missing a required query string param: ${param}`);
-            const id = get(qsParams, param);
-            if (!isValidUUID(id)) return new Error(`query string param must be a valid UUID: ${param} ${id}`);
-            return undefined;
-          },
-          undefined,
-        );
+      const qsError :?Error = requiredParams.reduce(
+        (error :any, param :string) => {
+          if (isDefined(error)) return error;
+          if (!has(qsParams, param)) return new Error(`missing a required query string param: ${param}`);
+          const id = get(qsParams, param);
+          if (!isValidUUID(id)) return new Error(`query string param must be a valid UUID: ${param} ${id}`);
+          return undefined;
+        },
+        undefined,
+      );
       if (qsError) throw qsError;
+
+      channelId = qsParams[QueryStringParams.CHANNEL_ID];
 
       entitySetIds = {
         [CLIENTS_ESN]: qsParams[QueryStringParams.CLIENTS_ESID],
@@ -169,7 +177,7 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
       };
     }
 
-    yield put(consentInitializer.success(action.id, { entityKeyIds, entitySetIds }));
+    yield put(consentInitializer.success(action.id, { channelId, entityKeyIds, entitySetIds }));
   }
   catch (error) {
     LOG.error(action.type, error);
