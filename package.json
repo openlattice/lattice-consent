@@ -34,7 +34,7 @@
     "@redux-saga/core": "~1.1.0",
     "connected-react-router": "~6.7.0",
     "history": "~4.10.0",
-    "immutable": "4.0.0-rc.12",
+    "immutable": "4.0.0-rc.9",
     "lattice": "0.73.0",
     "lattice-auth": "0.18.0",
     "lattice-fabricate": "0.11.0",
@@ -54,7 +54,7 @@
     "redux": "~4.0.0",
     "redux-immutable": "4.0.0",
     "redux-reqseq": "0.5.0",
-    "styled-components": "~5.0.1"
+    "styled-components": "~4.4.0"
   },
   "devDependencies": {
     "@babel/cli": "~7.8.0",
@@ -77,10 +77,10 @@
     "eslint-import-resolver-webpack": "~0.12.0",
     "eslint-loader": "~3.0.0",
     "eslint-plugin-flowtype": "~4.6.0",
-    "eslint-plugin-import": "~2.20.1",
+    "eslint-plugin-import": "~2.20.0",
     "eslint-plugin-jest": "~23.7.0",
     "eslint-plugin-jsx-a11y": "~6.2.0",
-    "eslint-plugin-react": "~7.18.3",
+    "eslint-plugin-react": "~7.18.0",
     "eslint-plugin-react-hooks": "~2.4.0",
     "file-loader": "~5.1.0",
     "flow-bin": "~0.118.0",
