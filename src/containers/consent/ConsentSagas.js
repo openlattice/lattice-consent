@@ -127,19 +127,12 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
     }
 
     const qsParams = qs.parse(queryString, { ignoreQueryPrefix: true });
-    const requiredParams = Object.keys(QueryStringParams)
+
+    const qsError :?Error = Object.keys(QueryStringParams)
       .filter((param :string) => (
         QueryStringParams[param] !== QueryStringParams.FORM_EKID // FORM_EKID is for after submit
-      ));
-
-    let channelId;
-    let entityKeyIds = {};
-    let entitySetIds = {};
-
-    const isEveryParamProvided = requiredParams.every((param) => has(qsParams, param));
-    if (isEveryParamProvided) {
-
-      const qsError :?Error = requiredParams.reduce(
+      ))
+      .reduce(
         (error :any, param :string) => {
           if (isDefined(error)) return error;
           if (!has(qsParams, param)) return new Error(`missing a required query string param: ${param}`);
@@ -149,33 +142,33 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
         },
         undefined,
       );
-      if (qsError) throw qsError;
 
-      channelId = qsParams[QueryStringParams.CHANNEL_ID];
+    if (qsError) throw qsError;
 
-      entitySetIds = {
-        [CLIENTS_ESN]: qsParams[QueryStringParams.CLIENTS_ESID],
-        [CONSENT_FORMS_ESN]: qsParams[QueryStringParams.CONSENT_FORMS_ESID],
-        [CONSENT_FORM_SCHEMAS_ESN]: qsParams[QueryStringParams.CONSENT_FORM_SCHEMAS_ESID],
-        [DECRYPTED_BY_ESN]: qsParams[QueryStringParams.DECRYPTED_BY_ESID],
-        [DIGITAL_SIGNATURES_ESN]: qsParams[QueryStringParams.DIGITAL_SIGNATURES_ESID],
-        [ELECTRONIC_SIGNATURES_ESN]: qsParams[QueryStringParams.ELECTRONIC_SIGNATURES_ESID],
-        [INCLUDES_ESN]: qsParams[QueryStringParams.INCLUDES_ESID],
-        [LOCATED_AT_ESN]: qsParams[QueryStringParams.LOCATED_AT_ESID],
-        [LOCATION_ESN]: qsParams[QueryStringParams.LOCATION_ESID],
-        [PUBLIC_KEYS_ESN]: qsParams[QueryStringParams.PUBLIC_KEYS_ESID],
-        [SIGNED_BY_ESN]: qsParams[QueryStringParams.SIGNED_BY_ESID],
-        [STAFF_ESN]: qsParams[QueryStringParams.STAFF_ESID],
-        [VERIFIES_ESN]: qsParams[QueryStringParams.VERIFIES_ESID],
-        [WITNESSES_ESN]: qsParams[QueryStringParams.WITNESSES_ESID],
-      };
+    const channelId = qsParams[QueryStringParams.CHANNEL_ID];
 
-      entityKeyIds = {
-        clientEntityKeyId: qsParams[QueryStringParams.CLIENT_EKID],
-        schemaEntityKeyId: qsParams[QueryStringParams.SCHEMA_EKID],
-        staffEntityKeyId: qsParams[QueryStringParams.STAFF_EKID],
-      };
-    }
+    const entityKeyIds = {
+      clientEntityKeyId: qsParams[QueryStringParams.CLIENT_EKID],
+      schemaEntityKeyId: qsParams[QueryStringParams.SCHEMA_EKID],
+      staffEntityKeyId: qsParams[QueryStringParams.STAFF_EKID],
+    };
+
+    const entitySetIds = {
+      [CLIENTS_ESN]: qsParams[QueryStringParams.CLIENTS_ESID],
+      [CONSENT_FORMS_ESN]: qsParams[QueryStringParams.CONSENT_FORMS_ESID],
+      [CONSENT_FORM_SCHEMAS_ESN]: qsParams[QueryStringParams.CONSENT_FORM_SCHEMAS_ESID],
+      [DECRYPTED_BY_ESN]: qsParams[QueryStringParams.DECRYPTED_BY_ESID],
+      [DIGITAL_SIGNATURES_ESN]: qsParams[QueryStringParams.DIGITAL_SIGNATURES_ESID],
+      [ELECTRONIC_SIGNATURES_ESN]: qsParams[QueryStringParams.ELECTRONIC_SIGNATURES_ESID],
+      [INCLUDES_ESN]: qsParams[QueryStringParams.INCLUDES_ESID],
+      [LOCATED_AT_ESN]: qsParams[QueryStringParams.LOCATED_AT_ESID],
+      [LOCATION_ESN]: qsParams[QueryStringParams.LOCATION_ESID],
+      [PUBLIC_KEYS_ESN]: qsParams[QueryStringParams.PUBLIC_KEYS_ESID],
+      [SIGNED_BY_ESN]: qsParams[QueryStringParams.SIGNED_BY_ESID],
+      [STAFF_ESN]: qsParams[QueryStringParams.STAFF_ESID],
+      [VERIFIES_ESN]: qsParams[QueryStringParams.VERIFIES_ESID],
+      [WITNESSES_ESN]: qsParams[QueryStringParams.WITNESSES_ESID],
+    };
 
     yield put(consentInitializer.success(action.id, { channelId, entityKeyIds, entitySetIds }));
   }
