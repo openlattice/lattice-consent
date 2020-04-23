@@ -1,5 +1,5 @@
-import randomUUID from 'uuid/v4';
 import { all, call, put } from '@redux-saga/core/effects';
+import { v4 as uuid } from 'uuid';
 
 import {
   INITIALIZE_APPLICATION,
@@ -9,8 +9,6 @@ import {
   initializeApplicationWatcher,
   initializeApplicationWorker,
 } from './AppSagas';
-import { CONSENT_INITIALIZER } from '../consent/ConsentActions';
-import { consentInitializerWorker } from '../consent/ConsentSagas';
 
 import { EDMActions, EDMSagas } from '../../core/edm';
 import {
@@ -18,6 +16,8 @@ import {
   testShouldBeGeneratorFunction,
   testWatcherSagaShouldTakeEvery,
 } from '../../utils/testing/TestUtils';
+import { CONSENT_INITIALIZER } from '../consent/ConsentActions';
+import { consentInitializerWorker } from '../consent/ConsentSagas';
 
 const { GET_EDM_TYPES } = EDMActions;
 const { getEntityDataModelTypesWorker } = EDMSagas;
@@ -47,7 +47,7 @@ describe('AppSagas', () => {
 
     test('success case', () => {
 
-      const mockActionValue = randomUUID();
+      const mockActionValue = uuid();
       const workerSagaAction = initializeApplication(mockActionValue);
       const iterator = initializeApplicationWorker(workerSagaAction);
       expect(Object.prototype.toString.call(iterator)).toEqual(GENERATOR_TAG);
@@ -93,7 +93,7 @@ describe('AppSagas', () => {
 
     test('failure case', () => {
 
-      const mockActionValue = randomUUID();
+      const mockActionValue = uuid();
       const mockError = new Error(500);
       const workerSagaAction = initializeApplication(mockActionValue);
       const iterator = initializeApplicationWorker(workerSagaAction);
