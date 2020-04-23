@@ -1,5 +1,5 @@
-// flow-typed signature: 41a61430cdeb84145dd74af3dd90d802
-// flow-typed version: 5a7f14d011/qs_v6.9.x/flow_>=v0.104.x
+// flow-typed signature: a075da302542e1c92aeb3dd49cbae6af
+// flow-typed version: 7c517f55da/qs_v6.9.x/flow_>=v0.104.x
 
 declare module "qs" {
   declare type Charset =
@@ -64,8 +64,11 @@ declare module "qs" {
   };
 
   declare module.exports: {|
-    parse(str: string, opts?: ParseOptions): {[string]: mixed, ...},
-    stringify(obj: {[string]: mixed, ...} | Array<mixed>, opts?: StringifyOptions): string,
+    parse(str: string, opts?: ParseOptions): { [string]: mixed, ... },
+    stringify(
+      obj: $ReadOnly<{ [string]: mixed, ... }> | $ReadOnlyArray<mixed>,
+      opts?: StringifyOptions
+    ): string,
     formats: Formats,
   |};
 }
