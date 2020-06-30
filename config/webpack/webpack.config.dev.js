@@ -18,7 +18,7 @@ module.exports = (env) => {
 
   const plugins = [
     new HtmlWebpackPlugin({
-      favicon: `${APP_PATHS.ABS.SOURCE_ASSETS}/svg/icons/ol-icon.png`,
+      favicon: `${APP_PATHS.ABS.SOURCE_ASSETS}/svg/icons/ol-icon.svg`,
       inject: true,
       template: `${APP_PATHS.ABS.SOURCE}/index.html`,
     }),
