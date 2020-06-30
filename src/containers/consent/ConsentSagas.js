@@ -18,7 +18,16 @@ import {
 } from 'immutable';
 import { DataProcessingUtils } from 'lattice-fabricate';
 import { DataApiActions, DataApiSagas } from 'lattice-sagas';
+import {
+  BinaryUtils,
+  LangUtils,
+  Logger,
+  ValidationUtils,
+  WebCryptoUtils,
+} from 'lattice-utils';
 import { DateTime } from 'luxon';
+import type { Saga } from '@redux-saga/core';
+import type { CryptoKeyPair } from 'lattice-utils';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
@@ -50,16 +59,8 @@ import {
 } from './ConsentUtils';
 import { QueryStringParams, SigningRoles } from './constants';
 
-import Logger from '../../utils/Logger';
 import { DataActions, DataSagas } from '../../core/data';
 import { EntitySetNames, FullyQualifiedNames } from '../../core/edm/constants';
-import {
-  BinaryUtils,
-  LangUtils,
-  ValidationUtils,
-  WebCryptoUtils,
-} from '../../utils';
-import type { CryptoKeyPair } from '../../utils/WebCryptoUtils';
 
 const LOG = new Logger('ConsentSagas');
 const { submitDataGraph } = DataActions;
@@ -114,7 +115,7 @@ const {
  *
  */
 
-function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
+function* consentInitializerWorker(action :SequenceAction) :Saga<*> {
 
   const workerResponse :Object = {};
 
@@ -184,7 +185,7 @@ function* consentInitializerWorker(action :SequenceAction) :Generator<*, *, *> {
   return workerResponse;
 }
 
-function* consentInitializerWatcher() :Generator<*, *, *> {
+function* consentInitializerWatcher() :Saga<*> {
 
   yield takeEvery(CONSENT_INITIALIZER, consentInitializerWorker);
 }
@@ -195,7 +196,7 @@ function* consentInitializerWatcher() :Generator<*, *, *> {
  *
  */
 
-function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
+function* submitConsentWorker(action :SequenceAction) :Saga<*> {
 
   try {
     yield put(submitConsent.request(action.id));
@@ -579,7 +580,7 @@ function* submitConsentWorker(action :SequenceAction) :Generator<*, *, *> {
   }
 }
 
-function* submitConsentWatcher() :Generator<*, *, *> {
+function* submitConsentWatcher() :Saga<*> {
 
   yield takeEvery(SUBMIT_CONSENT, submitConsentWorker);
 }
@@ -590,7 +591,7 @@ function* submitConsentWatcher() :Generator<*, *, *> {
  *
  */
 
-function* getConsentFormSchemaWorker(action :SequenceAction) :Generator<*, *, *> {
+function* getConsentFormSchemaWorker(action :SequenceAction) :Saga<*> {
 
   try {
     yield put(getConsentFormSchema.request(action.id));
@@ -623,7 +624,7 @@ function* getConsentFormSchemaWorker(action :SequenceAction) :Generator<*, *, *>
   }
 }
 
-function* getConsentFormSchemaWatcher() :Generator<*, *, *> {
+function* getConsentFormSchemaWatcher() :Saga<*> {
 
   yield takeEvery(GET_CONSENT_FORM_SCHEMA, getConsentFormSchemaWorker);
 }

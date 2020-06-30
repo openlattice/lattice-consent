@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { Map, fromJS, getIn } from 'immutable';
 import { Form } from 'lattice-fabricate';
 import { Button, Spinner } from 'lattice-ui-kit';
+import { ValidationUtils, useGeo } from 'lattice-utils';
 import { DateTime } from 'luxon';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -17,10 +18,9 @@ import * as ConsentActions from './ConsentActions';
 import * as ConsentSchema from './ConsentSchema';
 import * as ConsentUtils from './ConsentUtils';
 
-import { Frame, Text } from '../../components';
-import { useGeo } from '../../core/geo';
-import { GeoErrorComponent } from '../../core/geo/components';
-import { ValidationUtils } from '../../utils';
+import { Frame, GeoErrorComponent, Text } from '../../components';
+
+const { isValidUUID } = ValidationUtils;
 
 const {
   GET_CONSENT_FORM_SCHEMA,
@@ -77,7 +77,7 @@ const ConsentContainer = () => {
   }, [geoPosition]);
 
   useEffect(() => {
-    if (ValidationUtils.isValidUUID(channelId)) {
+    if (isValidUUID(channelId)) {
       const message = {
         id: channelId,
         value: {

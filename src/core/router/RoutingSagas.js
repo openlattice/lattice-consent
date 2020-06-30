@@ -4,16 +4,17 @@
 
 import { put, takeEvery } from '@redux-saga/core/effects';
 import { push } from 'connected-react-router';
+import { Logger } from 'lattice-utils';
+import type { Saga } from '@redux-saga/core';
 
-import Logger from '../../utils/Logger';
-import { ERR_INVALID_ROUTE } from '../../utils/Errors';
 import {
   GO_TO_ROOT,
   GO_TO_ROUTE,
   routingFailure,
 } from './RoutingActions';
-
 import type { RoutingAction } from './RoutingActions';
+
+import { ERR_INVALID_ROUTE } from '../../utils/Errors';
 
 const LOG = new Logger('RoutingSagas');
 
@@ -23,7 +24,7 @@ const LOG = new Logger('RoutingSagas');
  *
  */
 
-function* goToRouteWorker(action :RoutingAction) :Generator<*, *, *> {
+function* goToRouteWorker(action :RoutingAction) :Saga<*> {
 
   const { route, state = {} } = action;
   if (route === null || route === undefined || !route.startsWith('/', 0)) {
@@ -32,10 +33,13 @@ function* goToRouteWorker(action :RoutingAction) :Generator<*, *, *> {
     return;
   }
 
-  yield put(push({ state, pathname: route }));
+  // ISSUE: https://github.com/supasate/connected-react-router/issues/394#issuecomment-596713700
+  // FIX: https://github.com/supasate/connected-react-router/pull/399
+  // TODO: remove JSON.stringify() once the fix ^ is released
+  yield put(push({ state: JSON.stringify(state), pathname: route }));
 }
 
-function* goToRouteWatcher() :Generator<*, *, *> {
+function* goToRouteWatcher() :Saga<*> {
 
   yield takeEvery(GO_TO_ROUTE, goToRouteWorker);
 }
@@ -46,7 +50,7 @@ function* goToRouteWatcher() :Generator<*, *, *> {
  *
  */
 
-function* goToRootWatcher() :Generator<*, *, *> {
+function* goToRootWatcher() :Saga<*> {
 
   yield takeEvery(GO_TO_ROOT, goToRouteWorker);
 }

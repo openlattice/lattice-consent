@@ -8,11 +8,12 @@ import {
   put,
   takeEvery,
 } from '@redux-saga/core/effects';
+import { Logger } from 'lattice-utils';
+import type { Saga } from '@redux-saga/core';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { INITIALIZE_APPLICATION, initializeApplication } from './AppActions';
 
-import Logger from '../../utils/Logger';
 import { EDMActions, EDMSagas } from '../../core/edm';
 import { ConsentActions, ConsentSagas } from '../consent';
 
@@ -29,7 +30,7 @@ const { consentInitializerWorker } = ConsentSagas;
  *
  */
 
-function* initializeApplicationWorker(action :SequenceAction) :Generator<*, *, *> {
+function* initializeApplicationWorker(action :SequenceAction) :Saga<*> {
 
   try {
     yield put(initializeApplication.request(action.id));
@@ -51,7 +52,7 @@ function* initializeApplicationWorker(action :SequenceAction) :Generator<*, *, *
   }
 }
 
-function* initializeApplicationWatcher() :Generator<*, *, *> {
+function* initializeApplicationWatcher() :Saga<*> {
 
   yield takeEvery(INITIALIZE_APPLICATION, initializeApplicationWorker);
 }
