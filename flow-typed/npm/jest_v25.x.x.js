@@ -1,5 +1,5 @@
-// flow-typed signature: a0fbdb22ab391eceafc1d5643528e257
-// flow-typed version: dd2428a21d/jest_v25.x.x/flow_>=v0.104.x
+// flow-typed signature: 375d5a4e61a0605f48babbb9650cfd7c
+// flow-typed version: 4efeddffd8/jest_v25.x.x/flow_>=v0.104.x
 
 type JestMockFn<TArguments: $ReadOnlyArray<*>, TReturn> = {
  (...args: TArguments): TReturn,
@@ -227,6 +227,8 @@ type DomTestingLibraryType = {
   * @deprecated
   */
  toBeInTheDOM(container?: HTMLElement): void,
+
+ // 4.x
  toBeInTheDocument(): void,
  toBeVisible(): void,
  toBeEmpty(): void,
@@ -241,12 +243,16 @@ type DomTestingLibraryType = {
  toHaveClass(...classNames: string[]): void,
  toHaveFocus(): void,
  toHaveFormValues(expectedValues: { [name: string]: any, ... }): void,
- toHaveStyle(css: string): void,
+ toHaveStyle(css: string | { [name: string]: any, ... }): void, 
  toHaveTextContent(
    text: string | RegExp,
-   options?: { normalizeWhitespace: boolean, ... }
+   options?: {| normalizeWhitespace: boolean |}
  ): void,
  toHaveValue(value?: string | string[] | number): void,
+
+ // 5.x
+ toHaveDisplayValue(value: string | string[]): void,
+ toBeChecked(): void,
  ...
 };
 
@@ -924,8 +930,8 @@ type JestObjectType = {
 type JestSpyType = { calls: JestCallsType, ... };
 
 type JestDoneFn = {|
- (): void,
- fail: (error: Error) => void,
+  (error?: Error): void,
+  fail: (error: Error) => void,
 |};
 
 /** Runs this function after every test inside this context */

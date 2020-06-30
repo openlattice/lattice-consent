@@ -10,9 +10,10 @@ import {
   get,
   hasIn,
   isCollection,
-  setIn,
   remove,
+  setIn,
 } from 'immutable';
+import { Logger } from 'lattice-utils';
 import { DateTime } from 'luxon';
 
 import {
@@ -28,9 +29,7 @@ import {
   WITNESS_PSK,
 } from './ConsentSchema';
 
-import { Logger } from '../../utils';
-
-const LOG :Logger = new Logger('ConsentUtils');
+const LOG = new Logger('ConsentUtils');
 
 const signatureValueMapper = (value :any) => ({
   data: value,

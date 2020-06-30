@@ -10,6 +10,8 @@ import {
 } from '@redux-saga/core/effects';
 import { Models, Types } from 'lattice';
 import { DataApiActions, DataApiSagas } from 'lattice-sagas';
+import { Logger } from 'lattice-utils';
+import type { Saga } from '@redux-saga/core';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
@@ -18,8 +20,6 @@ import {
   submitDataGraph,
   submitPartialReplace,
 } from './DataActions';
-
-import { Logger } from '../../utils';
 
 const LOG = new Logger('DataSagas');
 
@@ -34,7 +34,7 @@ const { createEntityAndAssociationDataWorker, updateEntityDataWorker } = DataApi
  *
  */
 
-function* submitDataGraphWorker(action :SequenceAction) :Generator<*, *, *> {
+function* submitDataGraphWorker(action :SequenceAction) :Saga<*> {
 
   const workerResponse :Object = {};
 
@@ -63,7 +63,7 @@ function* submitDataGraphWorker(action :SequenceAction) :Generator<*, *, *> {
   return workerResponse;
 }
 
-function* submitDataGraphWatcher() :Generator<*, *, *> {
+function* submitDataGraphWatcher() :Saga<*> {
 
   yield takeEvery(SUBMIT_DATA_GRAPH, submitDataGraphWorker);
 }
@@ -74,7 +74,7 @@ function* submitDataGraphWatcher() :Generator<*, *, *> {
  *
  */
 
-function* submitPartialReplaceWorker(action :SequenceAction) :Generator<*, *, *> {
+function* submitPartialReplaceWorker(action :SequenceAction) :Saga<*> {
 
   const workerResponse :Object = {};
 
@@ -123,7 +123,7 @@ function* submitPartialReplaceWorker(action :SequenceAction) :Generator<*, *, *>
   return workerResponse;
 }
 
-function* submitPartialReplaceWatcher() :Generator<*, *, *> {
+function* submitPartialReplaceWatcher() :Saga<*> {
 
   yield takeEvery(SUBMIT_PARTIAL_REPLACE, submitPartialReplaceWorker);
 }

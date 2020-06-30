@@ -4,6 +4,7 @@
 
 import { LOCATION_CHANGE } from 'connected-react-router';
 import { Map, fromJS } from 'immutable';
+import { ReduxConstants } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -17,9 +18,11 @@ import {
   submitConsent,
 } from './ConsentActions';
 
+const { REQUEST_STATE } = ReduxConstants;
+
 const INITIAL_STATE :Map<*, *> = fromJS({
-  [GET_CONSENT_FORM_SCHEMA]: { requestState: RequestStates.STANDBY },
-  [SUBMIT_CONSENT]: { requestState: RequestStates.STANDBY },
+  [GET_CONSENT_FORM_SCHEMA]: { [REQUEST_STATE]: RequestStates.STANDBY },
+  [SUBMIT_CONSENT]: { [REQUEST_STATE]: RequestStates.STANDBY },
   clientEntityKeyId: undefined,
   channelId: undefined,
   schema: undefined,
@@ -40,7 +43,7 @@ export default function reducer(state :Map<*, *> = INITIAL_STATE, action :Object
       const seqAction :SequenceAction = action;
       return consentInitializer.reducer(state, action, {
         REQUEST: () => state
-          .setIn([CONSENT_INITIALIZER, 'requestState'], RequestStates.PENDING)
+          .setIn([CONSENT_INITIALIZER, REQUEST_STATE], RequestStates.PENDING)
           .setIn([CONSENT_INITIALIZER, seqAction.id], seqAction),
         SUCCESS: () => {
           const storedSeqAction :SequenceAction = state.getIn([CONSENT_INITIALIZER, seqAction.id]);
@@ -51,7 +54,7 @@ export default function reducer(state :Map<*, *> = INITIAL_STATE, action :Object
               .set('clientEntityKeyId', entityKeyIds.clientEntityKeyId)
               .set('schemaEntityKeyId', entityKeyIds.schemaEntityKeyId)
               .set('staffEntityKeyId', entityKeyIds.staffEntityKeyId)
-              .setIn([CONSENT_INITIALIZER, 'requestState'], RequestStates.SUCCESS);
+              .setIn([CONSENT_INITIALIZER, REQUEST_STATE], RequestStates.SUCCESS);
           }
           return state;
         },
@@ -59,7 +62,7 @@ export default function reducer(state :Map<*, *> = INITIAL_STATE, action :Object
           .set('clientEntityKeyId', undefined)
           .set('schemaEntityKeyId', undefined)
           .set('staffEntityKeyId', undefined)
-          .setIn([CONSENT_INITIALIZER, 'requestState'], RequestStates.FAILURE),
+          .setIn([CONSENT_INITIALIZER, REQUEST_STATE], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([CONSENT_INITIALIZER, seqAction.id]),
       });
     }
@@ -68,20 +71,20 @@ export default function reducer(state :Map<*, *> = INITIAL_STATE, action :Object
       const seqAction :SequenceAction = action;
       return getConsentFormSchema.reducer(state, action, {
         REQUEST: () => state
-          .setIn([GET_CONSENT_FORM_SCHEMA, 'requestState'], RequestStates.PENDING)
+          .setIn([GET_CONSENT_FORM_SCHEMA, REQUEST_STATE], RequestStates.PENDING)
           .setIn([GET_CONSENT_FORM_SCHEMA, seqAction.id], seqAction),
         SUCCESS: () => {
           const storedSeqAction :SequenceAction = state.getIn([GET_CONSENT_FORM_SCHEMA, seqAction.id]);
           if (storedSeqAction) {
             return state
               .set('schema', seqAction.value)
-              .setIn([GET_CONSENT_FORM_SCHEMA, 'requestState'], RequestStates.SUCCESS);
+              .setIn([GET_CONSENT_FORM_SCHEMA, REQUEST_STATE], RequestStates.SUCCESS);
           }
           return state;
         },
         FAILURE: () => state
           .set('schema', undefined)
-          .setIn([GET_CONSENT_FORM_SCHEMA, 'requestState'], RequestStates.FAILURE),
+          .setIn([GET_CONSENT_FORM_SCHEMA, REQUEST_STATE], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([GET_CONSENT_FORM_SCHEMA, seqAction.id]),
       });
     }
@@ -89,9 +92,9 @@ export default function reducer(state :Map<*, *> = INITIAL_STATE, action :Object
     case submitConsent.case(action.type): {
       const seqAction :SequenceAction = action;
       return submitConsent.reducer(state, seqAction, {
-        REQUEST: () => state.setIn([SUBMIT_CONSENT, 'requestState'], RequestStates.PENDING),
-        SUCCESS: () => state.setIn([SUBMIT_CONSENT, 'requestState'], RequestStates.SUCCESS),
-        FAILURE: () => state.setIn([SUBMIT_CONSENT, 'requestState'], RequestStates.FAILURE),
+        REQUEST: () => state.setIn([SUBMIT_CONSENT, REQUEST_STATE], RequestStates.PENDING),
+        SUCCESS: () => state.setIn([SUBMIT_CONSENT, REQUEST_STATE], RequestStates.SUCCESS),
+        FAILURE: () => state.setIn([SUBMIT_CONSENT, REQUEST_STATE], RequestStates.FAILURE),
       });
     }
 

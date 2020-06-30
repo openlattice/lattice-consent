@@ -4,24 +4,23 @@
 
 import { List, Map, fromJS } from 'immutable';
 import { Models } from 'lattice';
+import { Logger, ReduxConstants } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 import type { EntityTypeObject, PropertyTypeObject } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { GET_EDM_TYPES, getEntityDataModelTypes } from './EDMActions';
 
-import Logger from '../../utils/Logger';
 import { ConsentActions } from '../../containers/consent';
 
-const LOG :Logger = new Logger('EDMReducer');
+const LOG = new Logger('EDMReducer');
 
 const { EntityTypeBuilder, PropertyTypeBuilder } = Models;
+const { REQUEST_STATE } = ReduxConstants;
 const { CONSENT_INITIALIZER, consentInitializer } = ConsentActions;
 
 const INITIAL_STATE :Map<*, *> = fromJS({
-  [GET_EDM_TYPES]: {
-    requestState: RequestStates.STANDBY,
-  },
+  [GET_EDM_TYPES]: { [REQUEST_STATE]: RequestStates.STANDBY },
   entitySetIds: Map(),
   entityTypes: List(),
   entityTypesIndexMap: Map(),
@@ -38,18 +37,18 @@ export default function edmReducer(state :Map<*, *> = INITIAL_STATE, action :Obj
       const seqAction :SequenceAction = action;
       return consentInitializer.reducer(state, action, {
         REQUEST: () => state
-          .setIn([CONSENT_INITIALIZER, 'requestState'], RequestStates.PENDING)
+          .setIn([CONSENT_INITIALIZER, REQUEST_STATE], RequestStates.PENDING)
           .setIn([CONSENT_INITIALIZER, seqAction.id], seqAction),
         SUCCESS: () => {
           const storedSeqAction :SequenceAction = state.getIn([CONSENT_INITIALIZER, seqAction.id]);
           if (storedSeqAction) {
             return state
               .mergeIn(['entitySetIds'], seqAction.value.entitySetIds)
-              .setIn([CONSENT_INITIALIZER, 'requestState'], RequestStates.SUCCESS);
+              .setIn([CONSENT_INITIALIZER, REQUEST_STATE], RequestStates.SUCCESS);
           }
           return state;
         },
-        FAILURE: () => state.setIn([CONSENT_INITIALIZER, 'requestState'], RequestStates.FAILURE),
+        FAILURE: () => state.setIn([CONSENT_INITIALIZER, REQUEST_STATE], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([CONSENT_INITIALIZER, seqAction.id]),
       });
     }
@@ -58,7 +57,7 @@ export default function edmReducer(state :Map<*, *> = INITIAL_STATE, action :Obj
       const seqAction :SequenceAction = action;
       return getEntityDataModelTypes.reducer(state, action, {
         REQUEST: () => state
-          .setIn([GET_EDM_TYPES, 'requestState'], RequestStates.PENDING)
+          .setIn([GET_EDM_TYPES, REQUEST_STATE], RequestStates.PENDING)
           .setIn([GET_EDM_TYPES, seqAction.id], seqAction),
         SUCCESS: () => {
 
@@ -104,7 +103,7 @@ export default function edmReducer(state :Map<*, *> = INITIAL_STATE, action :Obj
             .set('propertyTypeIds', propertyTypeIds.asImmutable())
             .set('propertyTypes', propertyTypes.asImmutable())
             .set('propertyTypesIndexMap', propertyTypesIndexMap.asImmutable())
-            .setIn([GET_EDM_TYPES, 'requestState'], RequestStates.SUCCESS);
+            .setIn([GET_EDM_TYPES, REQUEST_STATE], RequestStates.SUCCESS);
         },
         FAILURE: () => state
           .set('entityTypes', List())
@@ -112,7 +111,7 @@ export default function edmReducer(state :Map<*, *> = INITIAL_STATE, action :Obj
           .set('propertyTypeIds', Map())
           .set('propertyTypes', List())
           .set('propertyTypesIndexMap', Map())
-          .setIn([GET_EDM_TYPES, 'requestState'], RequestStates.FAILURE),
+          .setIn([GET_EDM_TYPES, REQUEST_STATE], RequestStates.FAILURE),
         FINALLY: () => state
           .deleteIn([GET_EDM_TYPES, seqAction.id]),
       });

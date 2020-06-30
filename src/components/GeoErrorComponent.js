@@ -4,8 +4,9 @@
 
 import React from 'react';
 
-import GeoErrors from '../GeoErrors';
-import { Text } from '../../../components';
+import { GeoErrors } from 'lattice-utils';
+
+import Text from './Text';
 
 const GeoErrorComponent = ({ error } :{ error :Error}) => {
 
