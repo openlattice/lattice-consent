@@ -70,6 +70,7 @@ const { getEntityDataWorker } = DataApiSagas;
 
 const { isDefined } = LangUtils;
 const { isValidUUID } = ValidationUtils;
+const { exportPublicKey, generateKeyPair, signData } = WebCryptoUtils;
 const {
   INDEX_MAPPERS,
   KEY_MAPPERS,
@@ -481,8 +482,8 @@ function* submitConsentWorker(action :SequenceAction) :Saga<*> {
      * 1. generate cryptographic key pair
      */
 
-    const keypair :CryptoKeyPair = yield WebCryptoUtils.generateKeyPair();
-    const publicKey :ArrayBuffer = yield WebCryptoUtils.exportPublicKey(keypair.publicKey);
+    const keypair :CryptoKeyPair = yield call(generateKeyPair);
+    const publicKey :ArrayBuffer = yield call(exportPublicKey, keypair.publicKey);
     const publicKeyAsBase64 :string = BinaryUtils.bufferToBase64(publicKey);
 
     /*
@@ -490,7 +491,7 @@ function* submitConsentWorker(action :SequenceAction) :Saga<*> {
      */
 
     const dataToSign :string = JSON.stringify(entityData);
-    const digitalSignature :ArrayBuffer = yield WebCryptoUtils.signData(keypair.privateKey, dataToSign);
+    const digitalSignature :ArrayBuffer = yield call(signData, keypair.privateKey, dataToSign);
     const digitalSignatureAsBase64 :string = BinaryUtils.bufferToBase64(digitalSignature);
 
     /*
