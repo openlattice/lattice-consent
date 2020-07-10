@@ -7,7 +7,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Map, fromJS, getIn } from 'immutable';
 import { Form } from 'lattice-fabricate';
-import { Button, Spinner } from 'lattice-ui-kit';
+import {
+  Button,
+  LatticeLuxonUtils,
+  MuiPickersUtilsProvider,
+  Spinner,
+  ThemeProvider,
+  lightTheme,
+} from 'lattice-ui-kit';
 import { ValidationUtils, useGeo } from 'lattice-utils';
 import { DateTime } from 'luxon';
 import { useDispatch, useSelector } from 'react-redux';
@@ -152,16 +159,20 @@ const ConsentContainer = () => {
     const isSubmitting = submitConsentRS === RequestStates.PENDING;
     return (
       <Frame padding="0">
-        <Form
-            disabled={isSubmitting}
-            formData={data.toJS()}
-            hideSubmit
-            onChange={onChange}
-            onSubmit={onSubmit}
-            ref={formRef}
-            schema={getIn(schema, ['dataSchema', 0])}
-            uiSchema={getIn(schema, ['uiSchema', 0])} />
-        <SubmitButton isLoading={isSubmitting} mode="primary" onClick={onClickSubmit}>Submit</SubmitButton>
+        <ThemeProvider theme={lightTheme}>
+          <MuiPickersUtilsProvider utils={LatticeLuxonUtils}>
+            <Form
+                disabled={isSubmitting}
+                formData={data.toJS()}
+                hideSubmit
+                onChange={onChange}
+                onSubmit={onSubmit}
+                ref={formRef}
+                schema={getIn(schema, ['dataSchema', 0])}
+                uiSchema={getIn(schema, ['uiSchema', 0])} />
+            <SubmitButton isLoading={isSubmitting} mode="primary" onClick={onClickSubmit}>Submit</SubmitButton>
+          </MuiPickersUtilsProvider>
+        </ThemeProvider>
       </Frame>
     );
   }
