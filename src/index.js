@@ -39,7 +39,7 @@ const GlobalStyle = createGlobalStyle`
 
   html,
   body {
-    background-color: ${NEUTRALS[7]};
+    background-color: white;
     color: ${NEUTRALS[0]};
     font-family: 'Inter', sans-serif;
     line-height: 1.5;
