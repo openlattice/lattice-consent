@@ -37,7 +37,7 @@
     "history": "~4.10.0",
     "immutable": "4.0.0-rc.10",
     "lattice": "0.75.0",
-    "lattice-auth": "~0.21.1",
+    "lattice-auth": "~0.22.0",
     "lattice-fabricate": "~0.13.3",
     "lattice-sagas": "~0.50.0",
     "lattice-ui-kit": "~0.32.2",
